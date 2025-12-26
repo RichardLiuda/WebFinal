@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CampusLink | Material Web Shell</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1"
+      rel="stylesheet"
+    />
+    <script type="importmap">
+      {
+        "imports": {
+          "@material/web/": "https://esm.run/@material/web/"
+        }
+      }
+    </script>
+    <script type="module">
+      import "@material/web/all.js";
+      import {styles as typescaleStyles} from "@material/web/typography/md-typescale-styles.js";
+
+      if ("adoptedStyleSheets" in document) {
+        document.adoptedStyleSheets = [
+          ...document.adoptedStyleSheets,
+          typescaleStyles.styleSheet,
+        ];
+      }
+    </script>
+    <link rel="stylesheet" href="../css/global.css" />
+  </head>
+  <body>
+    <header class="top-app-bar">
+      <div class="brand">
+        <div class="brand-mark">CL</div>
+        <div class="brand-text">
+          <span class="md-typescale-title-large brand-name">CampusLink</span>
+          <span class="md-typescale-body-small brand-sub">Campus social studio</span>
+        </div>
+      </div>
+      <div class="app-actions">
+        <md-icon-button aria-label="Search">
+          <md-icon>search</md-icon>
+        </md-icon-button>
+        <md-icon-button aria-label="Notifications">
+          <md-icon>notifications</md-icon>
+        </md-icon-button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="hero surface-card">
+        <span class="md-typescale-label-large hero-tag">Campus feed</span>
+        <h1 class="md-typescale-display-small">Moments that keep campus alive.</h1>
+        <p class="md-typescale-body-large">
+          Stay close to classmates, discover clubs, and share stories as they happen.
+        </p>
+        <div class="hero-actions">
+          <md-filled-button>Join now</md-filled-button>
+          <md-outlined-button>Browse as guest</md-outlined-button>
+        </div>
+      </section>
+
+      <section class="feed-panel surface-card">
+        <md-tabs id="feed-tabs" class="feed-tabs" aria-label="Feed filter">
+          <md-primary-tab id="tab-all" data-filter="all" active aria-controls="panel-all">
+            Latest
+          </md-primary-tab>
+          <md-primary-tab
+            id="tab-following"
+            data-filter="following"
+            aria-controls="panel-following"
+          >
+            Following
+          </md-primary-tab>
+        </md-tabs>
+
+        <div class="feed-panels">
+          <div id="panel-all" role="tabpanel" aria-labelledby="tab-all">
+            <div id="feed-empty-all" class="empty-state" hidden>
+              No posts yet. Start by sharing your first campus story.
+            </div>
+            <div id="feed-list-all" class="feed-list"></div>
+          </div>
+          <div id="panel-following" role="tabpanel" aria-labelledby="tab-following" hidden>
+            <div id="feed-empty-following" class="empty-state" hidden>
+              Follow someone to see their updates here.
+            </div>
+            <div id="feed-list-following" class="feed-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <md-fab class="fab" variant="primary" aria-label="Create post">
+      <md-icon slot="icon">add</md-icon>
+    </md-fab>
+
+    <nav class="bottom-nav" aria-label="Primary">
+      <button class="nav-item is-active" type="button" data-route="home">
+        <md-icon>home</md-icon>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" type="button" data-route="post">
+        <md-icon>edit</md-icon>
+        <span class="nav-label">Post</span>
+      </button>
+      <button class="nav-item" type="button" data-route="explore">
+        <md-icon>explore</md-icon>
+        <span class="nav-label">Explore</span>
+      </button>
+      <button class="nav-item" type="button" data-route="profile">
+        <md-icon>person</md-icon>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+
+    <script src="../js/LocalStorage.js" defer></script>
+    <script src="../js/layout.js" defer></script>
+  </body>
+</html>
