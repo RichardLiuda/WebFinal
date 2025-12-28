@@ -71,6 +71,7 @@
       authorId: post.authorId || "unknown",
       content: post.content || "",
       tags: Array.isArray(post.tags) ? post.tags : [],
+      images: Array.isArray(post.images) ? post.images : [],
       likes: Array.isArray(post.likes) ? post.likes : [],
       comments: Array.isArray(post.comments) ? post.comments : [],
       timestamp: post.timestamp || new Date().toISOString(),
@@ -98,28 +99,51 @@
     posts.forEach((post, index) => {
       const card = document.createElement("article");
       card.className = "post-card";
+      card.dataset.id = post.id;
       card.style.animationDelay = `${index * 0.05}s`;
 
       const tagsMarkup = post.tags
         .map((tag) => `<span class="tag-pill">${escapeHtml(tag)}</span>`)
         .join("");
 
+      const imagesMarkup = (post.images || []).map(img => `<img src="${img}" style="border-radius: 12px; margin-top: 8px; max-height: 300px; object-fit: cover;">`).join("");
+      
+      const user = window.DB ? window.DB.ctx() : null;
+      const isLiked = user && post.likes.includes(user.id);
+      const likeIcon = isLiked ? 'favorite' : 'favorite_border';
+
+      const author = window.DB && window.DB.getUser ? window.DB.getUser(post.authorId) : null;
+      const avatarHtml = (author && author.avatar) 
+        ? `<img src="${author.avatar}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;">` 
+        : `<div class="brand-mark" style="width: 32px; height: 32px; font-size: 14px;">${String(post.authorId).substring(0,2)}</div>`;
+
       card.innerHTML = `
         <div class="post-header">
-          <div class="post-author md-typescale-title-small">${escapeHtml(
+          ${avatarHtml}
+          <div style="flex:1; margin-left: 12px;">
+            <div class="post-author md-typescale-title-small">${escapeHtml(
             post.authorId
           )}</div>
-          <div class="post-meta md-typescale-body-small">${escapeHtml(
+            <div class="post-meta md-typescale-body-small">${escapeHtml(
             formatTime(post.timestamp)
           )}</div>
+          </div>
         </div>
-        <div class="post-content md-typescale-body-medium">${escapeHtml(
+        <div class="post-content md-typescale-body-medium" style="margin-top: 8px;">${escapeHtml(
           post.content
-        )}</div>
-        <div class="post-tags">${tagsMarkup}</div>
-        <div class="post-actions">
-          <md-outlined-button type="button">Like ${post.likes.length}</md-outlined-button>
-          <md-outlined-button type="button">Comment ${post.comments.length}</md-outlined-button>
+        )}
+        ${imagesMarkup}
+        </div>
+        <div class="post-tags" style="margin-top: 8px;">${tagsMarkup}</div>
+        <div class="post-actions" style="margin-top: 12px;">
+          <md-outlined-button type="button" class="btn-like" data-id="${post.id}">
+            <md-icon slot="icon">${likeIcon}</md-icon>
+            ${post.likes.length}
+          </md-outlined-button>
+          <md-outlined-button type="button" class="btn-comment" data-id="${post.id}">
+            <md-icon slot="icon">chat_bubble_outline</md-icon>
+            ${post.comments.length}
+          </md-outlined-button>
           <md-text-button type="button">Share</md-text-button>
         </div>
       `;
