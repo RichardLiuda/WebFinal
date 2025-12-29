@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console | CampusLink</title>
+    <!-- M3 Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1" rel="stylesheet" />
+    
+    <script type="importmap">
+        { "imports": { "@material/web/": "https://esm.run/@material/web/" } }
+    </script>
+    <script type="module">
+        import "@material/web/all.js";
+        import {styles as typescaleStyles} from "@material/web/typography/md-typescale-styles.js";
+        if ("adoptedStyleSheets" in document) {
+            document.adoptedStyleSheets = [...document.adoptedStyleSheets, typescaleStyles.styleSheet];
+        }
+    </script>
+    <link rel="stylesheet" href="../css/global.css">
+    
+    <style>
+        body {
+            background-color: var(--md-sys-color-surface);
+            padding: 0;
+            margin: 0;
+        }
+        .admin-layout {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .header-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            padding: 20px;
+            text-align: center;
+            background: var(--md-sys-color-surface-container-high);
+            border-radius: var(--md-sys-shape-corner-large);
+        }
+        .user-card {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: var(--md-sys-color-surface-container);
+            border-radius: var(--md-sys-shape-corner-medium);
+            border: 1px solid var(--md-sys-color-outline-variant);
+            transition: all 0.2s;
+        }
+        .user-card.is-banned {
+            border-left: 8px solid var(--md-sys-color-error);
+            background: var(--md-sys-color-error-container);
+            opacity: 0.8;
+        }
+        .user-info {
+            flex: 1;
+            margin-left: 16px;
+        }
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .badge-admin {
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- Top Nav -->
+        <div class="header-section">
+            <md-icon-button onclick="location.href='index.html'"><md-icon>arrow_back</md-icon></md-icon-button>
+            <div>
+                <h1 class="md-typescale-headline-medium" style="margin:0">Admin Console</h1>
+                <p class="md-typescale-body-medium">Manage users and community safety</p>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="md-typescale-label-large">Total Students</div>
+                <div class="md-typescale-display-small" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="md-typescale-label-large">Banned Accounts</div>
+                <div class="md-typescale-display-small" id="stat-banned" style="color: var(--md-sys-color-error)">0</div>
+            </div>
+        </div>
+
+        <!-- User List Area -->
+        <h2 class="md-typescale-title-large" style="margin-bottom: 16px;">User Directory</h2>
+        <div id="user-list-container">
+            <!-- Dynamic Users Here -->
+        </div>
+    </div>
+
+    <script src="../js/LocalStorage.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = window.DB.ctx();
+            
+            // SECURITY GUARD: Only admins allowed
+            if (!user || user.role !== 'admin') {
+                alert("Security Alert: You are not authorized to view this page.");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const renderUsers = () => {
+                const users = JSON.parse(localStorage.getItem('m3_users') || '[]');
+                const container = document.getElementById('user-list-container');
+                
+                // Update Stats
+                document.getElementById('stat-total').innerText = users.length;
+                document.getElementById('stat-banned').innerText = users.filter(u => u.isBanned).length;
+
+                container.innerHTML = users.map(u => `
+                    <div class="user-card ${u.isBanned ? 'is-banned' : ''}">
+                        <img src="${u.avatar}" class="user-avatar">
+                        <div class="user-info">
+                            <div class="md-typescale-title-medium">
+                                ${u.nickname} 
+                                ${u.role === 'admin' ? '<span class="badge-admin">ADMIN</span>' : ''}
+                            </div>
+                            <div class="md-typescale-body-small">ID: ${u.id} • ${u.isBanned ? 'Status: Banned' : 'Status: Active'}</div>
+                        </div>
+                        <div class="action-btns">
+                            ${u.role !== 'admin' ? `
+                                <md-filled-tonal-button onclick="toggleBan('${u.id}')">
+                                    <md-icon slot="icon">${u.isBanned ? 'check_circle' : 'block'}</md-icon>
+                                    ${u.isBanned ? 'Unban' : 'Ban User'}
+                                </md-filled-tonal-button>
+                                <md-outlined-button onclick="resetBio('${u.id}')">
+                                    Reset Profile
+                                </md-outlined-button>
+                            ` : '<span class="md-typescale-body-small" style="padding: 8px">Admin Protected</span>'}
+                        </div>
+                    </div>
+                `).join('');
+            };
+
+            window.toggleBan = (targetId) => {
+                let users = JSON.parse(localStorage.getItem('m3_users'));
+                const index = users.findIndex(u => u.id === targetId);
+                if (index > -1) {
+                    users[index].isBanned = !users[index].isBanned;
+                    localStorage.setItem('m3_users', JSON.stringify(users));
+                    renderUsers();
+                }
+            };
+
+            window.resetBio = (targetId) => {
+                if(confirm("Are you sure you want to reset this student's profile bio?")) {
+                    let users = JSON.parse(localStorage.getItem('m3_users'));
+                    const index = users.findIndex(u => u.id === targetId);
+                    if (index > -1) {
+                        users[index].bio = "Profile reset by community moderator.";
+                        localStorage.setItem('m3_users', JSON.stringify(users));
+                        renderUsers();
+                    }
+                }
+            };
+
+            renderUsers();
+        });
+    </script>
+</body>
+</html>

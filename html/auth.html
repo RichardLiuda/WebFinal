@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | CampusLink</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1" rel="stylesheet" />
+    
+    <script type="importmap">
+        { "imports": { "@material/web/": "https://esm.run/@material/web/" } }
+    </script>
+    <script type="module">
+        import "@material/web/all.js";
+        import {styles as typescaleStyles} from "@material/web/typography/md-typescale-styles.js";
+        if ("adoptedStyleSheets" in document) {
+            document.adoptedStyleSheets = [...document.adoptedStyleSheets, typescaleStyles.styleSheet];
+        }
+    </script>
+    <link rel="stylesheet" href="../css/global.css">
+    
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--md-sys-color-surface-container-low) 0%, var(--md-sys-color-primary-container) 100%);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 16px;
+            animation: riseIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .auth-card {
+            background: var(--md-sys-color-surface-container-highest);
+            padding: 32px;
+            border-radius: var(--md-sys-shape-corner-extra-large);
+            box-shadow: var(--app-shadow-2);
+            border: 1px solid var(--md-sys-color-outline-variant);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo {
+            margin: 0 auto 16px;
+            width: 64px;
+            height: 64px;
+            font-size: 28px;
+        }
+
+        .form-section {
+            margin-top: 24px;
+            display: none; 
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-section.active {
+            display: flex;
+        }
+
+        md-outlined-text-field {
+            width: 100%;
+        }
+
+        .actions-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: -8px;
+        }
+
+        .submit-btn {
+            margin-top: 12px;
+            height: 56px;
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <main class="auth-card">
+            <header class="header">
+                <div class="brand-mark brand-logo">CL</div>
+                <h1 class="md-typescale-headline-medium" style="margin: 0; color: var(--md-sys-color-on-surface);">CampusLink</h1>
+                <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant);">University Social Network</p>
+            </header>
+
+            <md-tabs id="auth-tabs" class="feed-tabs">
+                <md-primary-tab active id="tab-login">Sign In</md-primary-tab>
+                <md-primary-tab id="tab-register">Register</md-primary-tab>
+            </md-tabs>
+
+            <!-- Sign In Form -->
+            <form id="login-form" class="form-section active">
+                <!-- maxlength removed to hide the counter -->
+                <md-outlined-text-field id="login-id" label="Student ID (10 Digits)" type="number" required>
+                    <md-icon slot="leading-icon">badge</md-icon>
+                </md-outlined-text-field>
+
+                <md-outlined-text-field id="login-pwd" label="Password" type="password" required has-trailing-icon>
+                    <md-icon slot="leading-icon">lock</md-icon>
+                    <md-icon-button slot="trailing-icon" id="toggle-pwd" toggle>
+                        <md-icon>visibility</md-icon>
+                        <md-icon slot="selected">visibility_off</md-icon>
+                    </md-icon-button>
+                </md-outlined-text-field>
+
+                <div class="actions-row">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <md-checkbox id="remember" touch-target="wrapper"></md-checkbox>
+                        <span class="md-typescale-label-large">Remember me</span>
+                    </label>
+                    <md-text-button type="button" onclick="alert('Please contact admin to reset your password.')">Forgot?</md-text-button>
+                </div>
+
+                <md-filled-button id="btn-login" class="submit-btn" type="button">
+                    Log In
+                    <md-icon slot="icon">login</md-icon>
+                </md-filled-button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="form-section">
+                <!-- maxlength removed to hide the counter -->
+                <md-outlined-text-field id="reg-id" label="Student ID (10 Digits)" type="number" required>
+                    <md-icon slot="leading-icon">numbers</md-icon>
+                </md-outlined-text-field>
+
+                <md-outlined-text-field id="reg-name" label="Nickname" required>
+                    <md-icon slot="leading-icon">face</md-icon>
+                </md-outlined-text-field>
+
+                <md-outlined-text-field id="reg-pwd" label="Password (min 6 chars)" type="password" required>
+                    <md-icon slot="leading-icon">password</md-icon>
+                </md-outlined-text-field>
+
+                <md-outlined-text-field id="reg-bio" label="Bio (Optional)" type="textarea" rows="2">
+                    <md-icon slot="leading-icon">description</md-icon>
+                </md-outlined-text-field>
+
+                <md-filled-button id="btn-register" class="submit-btn" type="button">
+                    Create Account
+                    <md-icon slot="icon">person_add</md-icon>
+                </md-filled-button>
+            </form>
+        </main>
+        
+        <div style="text-align: center; margin-top: 24px;">
+            <md-text-button onclick="location.href='index.html'">
+                <md-icon slot="icon">arrow_back</md-icon>
+                Back to Home
+            </md-text-button>
+        </div>
+    </div>
+
+    <script src="../js/LocalStorage.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>
