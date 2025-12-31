@@ -112,22 +112,32 @@
       const isLiked = user && post.likes.includes(user.id);
       const likeIcon = isLiked ? 'favorite' : 'favorite_border';
 
-      const author = window.DB && window.DB.getUser ? window.DB.getUser(post.authorId) : null;
+      const author = window.DB && window.DB.getUserById ? window.DB.getUserById(post.authorId) : null;
       const avatarHtml = (author && author.avatar) 
-        ? `<img src="${author.avatar}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;">` 
-        : `<div class="brand-mark" style="width: 32px; height: 32px; font-size: 14px;">${String(post.authorId).substring(0,2)}</div>`;
+        ? `<img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;">` 
+        : `<div class="brand-mark" style="width: 32px; height: 32px; font-size: 14px;">${String(author ? author.id : post.authorId).substring(0,2)}</div>`;
+
+      // Check if user is logged in and not the author
+      const isCurrentUser = user && String(user.id) === String(post.authorId);
+      const isFollowing = user && !isCurrentUser && window.DB.isFollowing ? window.DB.isFollowing(post.authorId) : false;
+      const followBtnHtml = user && !isCurrentUser ? `
+        <md-outlined-button type="button" class="btn-follow" data-author-id="${post.authorId}">
+          ${isFollowing ? 'Unfollow' : 'Follow'}
+        </md-outlined-button>
+      ` : '';
 
       card.innerHTML = `
         <div class="post-header">
           ${avatarHtml}
           <div style="flex:1; margin-left: 12px;">
             <div class="post-author md-typescale-title-small">${escapeHtml(
-            post.authorId
+            author ? (author.nickname || author.id) : post.authorId
           )}</div>
             <div class="post-meta md-typescale-body-small">${escapeHtml(
             formatTime(post.timestamp)
-          )}</div>
+          )} ${author ? `• ${author.stats?.followers || 0} followers` : ''}</div>
           </div>
+          ${followBtnHtml}
         </div>
         <div class="post-content md-typescale-body-medium" style="margin-top: 8px;">${escapeHtml(
           post.content
@@ -151,6 +161,17 @@
     });
 
     panel.list.appendChild(fragment);
+
+    // Add event listeners for follow buttons
+    panel.list.querySelectorAll('.btn-follow').forEach(button => {
+      button.addEventListener('click', () => {
+        const authorId = button.dataset.authorId;
+        if (window.DB && window.DB.toggleFollow) {
+          const isFollowing = window.DB.toggleFollow(authorId);
+          button.textContent = isFollowing ? 'Unfollow' : 'Follow';
+        }
+      });
+    });
   };
 
   const setActiveFilter = (filter) => {
@@ -189,7 +210,17 @@
 
   navButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      setActiveRoute(button.dataset.route);
+      const route = button.dataset.route;
+      setActiveRoute(route);
+
+      if (route === "profile") {
+        const currentUser = window.DB?.getCurrentUser();
+        if (currentUser) {
+          window.location.href = "profile.html";
+        } else {
+          window.location.href = "auth.html";
+        }
+      }
     });
   });
 

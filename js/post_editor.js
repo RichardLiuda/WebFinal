@@ -138,15 +138,27 @@ const PostEditor = {
     const list = document.getElementById('comments-list');
     const posts = window.DB.getFeed();
     const post = posts.find(p => p.id === postId);
+    const escapeHtml = window.Utils ? window.Utils.sanitize : (s) => s;
     
     if (!list || !post) return;
 
-    list.innerHTML = post.comments.map(c => `
-        <div class="comment-item" style="background: var(--md-sys-color-surface-container-low); padding: 8px; border-radius: 8px;">
-            <div style="font-size: 0.8rem; color: var(--md-sys-color-primary); font-weight: bold;">${c.authorId} <span style="font-weight: normal; color: var(--md-sys-color-on-surface-variant);">${window.Utils.timeAgo(c.timestamp)}</span></div>
-            <div style="font-size: 0.9rem;">${window.Utils.sanitize(c.content)}</div>
-        </div>
-    `).join('');
+    list.innerHTML = post.comments.map(c => {
+        const author = window.DB && window.DB.getUserById ? window.DB.getUserById(c.authorId) : null;
+        const authorName = author ? (author.nickname || author.id) : c.authorId;
+        const avatarHtml = (author && author.avatar) 
+          ? `<img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(authorName)}" style="width:24px; height:24px; border-radius:12px; object-fit:cover; margin-right:8px;">` 
+          : `<div class="brand-mark" style="width:24px; height:24px; font-size:12px; margin-right:8px;">${String(author ? author.id : c.authorId).substring(0,2)}</div>`;
+        
+        return `
+            <div class="comment-item" style="background: var(--md-sys-color-surface-container-low); padding: 8px; border-radius: 8px; display:flex; align-items:flex-start;">
+                ${avatarHtml}
+                <div style="flex:1;">
+                    <div style="font-size: 0.8rem; color: var(--md-sys-color-primary); font-weight: bold;">${escapeHtml(authorName)} <span style="font-weight: normal; color: var(--md-sys-color-on-surface-variant);">${window.Utils.timeAgo(c.timestamp)}</span></div>
+                    <div style="font-size: 0.9rem;">${escapeHtml(c.content)}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
   },
 
   // Helper to generate HTML (Matches layout.js structure but adds IDs)
@@ -165,11 +177,16 @@ const PostEditor = {
     const likeIcon = isLiked ? 'favorite' : 'favorite_border';
     const likeLabel = isLiked ? 'Liked' : 'Like';
 
+    const author = window.DB && window.DB.getUserById ? window.DB.getUserById(post.authorId) : null;
+    const avatarHtml = (author && author.avatar) 
+      ? `<img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;">` 
+      : `<div class="brand-mark" style="width: 32px; height: 32px; font-size: 14px;">${String(author ? author.id : post.authorId).substring(0,2)}</div>`;
+
     return `
         <div class="post-header">
-          <div class="brand-mark" style="width: 32px; height: 32px; font-size: 14px;">${post.authorId.substring(0,2)}</div>
-          <div style="flex:1;">
-            <div class="post-author md-typescale-title-small">${escapeHtml(post.authorId)}</div>
+          ${avatarHtml}
+          <div style="flex:1; margin-left: 12px;">
+            <div class="post-author md-typescale-title-small">${escapeHtml(author ? (author.nickname || author.id) : post.authorId)}</div>
             <div class="post-meta md-typescale-body-small">${escapeHtml(formatTime(post.timestamp))}</div>
           </div>
         </div>

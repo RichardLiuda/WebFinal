@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -7,13 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
+      href="//fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1"
-      rel="stylesheet"
-    />
+      href="//fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1"
+      rel="stylesheet" />
     <script type="importmap">
       {
         "imports": {
@@ -23,7 +21,7 @@
     </script>
     <script type="module">
       import "@material/web/all.js";
-      import {styles as typescaleStyles} from "@material/web/typography/md-typescale-styles.js";
+      import { styles as typescaleStyles } from "@material/web/typography/md-typescale-styles.js";
 
       if ("adoptedStyleSheets" in document) {
         document.adoptedStyleSheets = [
@@ -34,28 +32,28 @@
     </script>
     <link rel="stylesheet" href="../css/global.css" />
     <style>
-        /* Member B: Avatar styling and layout consistency */
-        #user-avatar-container {
-            display: flex;
-            align-items: center;
-            position: relative;
-        }
-        #avatar-trigger {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid var(--md-sys-color-outline-variant);
-            margin-left: 8px;
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #avatar-trigger:hover {
-            transform: scale(1.1);
-        }
-        /* 默认隐藏管理员选项 */
-        #menu-admin {
-            display: none;
-        }
+      /* Member B: Avatar styling and layout consistency */
+      #user-avatar-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+      #avatar-trigger {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid var(--md-sys-color-outline-variant);
+        margin-left: 8px;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #avatar-trigger:hover {
+        transform: scale(1.1);
+      }
+      /* 默认隐藏管理员选项 */
+      #menu-admin {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -64,7 +62,9 @@
         <div class="brand-mark">CL</div>
         <div class="brand-text">
           <span class="md-typescale-title-large brand-name">CampusLink</span>
-          <span class="md-typescale-body-small brand-sub">Campus social studio</span>
+          <span class="md-typescale-body-small brand-sub"
+            >Campus social studio</span
+          >
         </div>
       </div>
       <div class="app-actions">
@@ -72,7 +72,7 @@
         <md-icon-button aria-label="Search">
           <md-icon>search</md-icon>
         </md-icon-button>
-        
+
         <md-icon-button aria-label="Notifications">
           <md-icon>notifications</md-icon>
         </md-icon-button>
@@ -87,12 +87,12 @@
             <div slot="headline">Admin Console</div>
             <md-icon slot="start">admin_panel_settings</md-icon>
           </md-menu-item>
-          
+
           <md-menu-item id="menu-profile">
             <div slot="headline">My Profile</div>
             <md-icon slot="start">person</md-icon>
           </md-menu-item>
-          
+
           <md-menu-item id="menu-logout">
             <div slot="headline">Logout</div>
             <md-icon slot="start">logout</md-icon>
@@ -103,27 +103,37 @@
 
     <main class="app-shell">
       <section class="hero surface-card">
-        <span class="md-typescale-label-large hero-tag" id="hero-tag">Campus feed</span>
-        <h1 class="md-typescale-display-small" id="hero-title">Moments that keep campus alive.</h1>
+        <span class="md-typescale-label-large hero-tag" id="hero-tag"
+          >Campus feed</span
+        >
+        <h1 class="md-typescale-display-small" id="hero-title">
+          Moments that keep campus alive.
+        </h1>
         <p class="md-typescale-body-large" id="hero-desc">
-          Stay close to classmates, discover clubs, and share stories as they happen.
+          Stay close to classmates, discover clubs, and share stories as they
+          happen.
         </p>
         <div class="hero-actions">
           <md-filled-button id="btn-join">Join now</md-filled-button>
-          <md-outlined-button id="btn-guest">Browse as guest</md-outlined-button>
+          <md-outlined-button id="btn-guest"
+            >Browse as guest</md-outlined-button
+          >
         </div>
       </section>
 
       <section class="feed-panel surface-card">
         <md-tabs id="feed-tabs" class="feed-tabs" aria-label="Feed filter">
-          <md-primary-tab id="tab-all" data-filter="all" active aria-controls="panel-all">
+          <md-primary-tab
+            id="tab-all"
+            data-filter="all"
+            active
+            aria-controls="panel-all">
             Latest
           </md-primary-tab>
           <md-primary-tab
             id="tab-following"
             data-filter="following"
-            aria-controls="panel-following"
-          >
+            aria-controls="panel-following">
             Following
           </md-primary-tab>
         </md-tabs>
@@ -135,7 +145,11 @@
             </div>
             <div id="feed-list-all" class="feed-list"></div>
           </div>
-          <div id="panel-following" role="tabpanel" aria-labelledby="tab-following" hidden>
+          <div
+            id="panel-following"
+            role="tabpanel"
+            aria-labelledby="tab-following"
+            hidden>
             <div id="feed-empty-following" class="empty-state" hidden>
               Follow someone to see their updates here.
             </div>
@@ -162,7 +176,11 @@
         <md-icon>explore</md-icon>
         <span class="nav-label">Explore</span>
       </button>
-      <button class="nav-item" type="button" data-route="profile" id="nav-profile">
+      <button
+        class="nav-item"
+        type="button"
+        data-route="profile"
+        id="nav-profile">
         <md-icon>person</md-icon>
         <span class="nav-label">Profile</span>
       </button>
@@ -172,32 +190,66 @@
     <md-dialog id="publish-dialog">
       <div slot="headline">Create Post</div>
       <form slot="content" id="publish-form" method="dialog">
-        <md-outlined-text-field id="post-content" type="textarea" label="What's on your mind?" rows="3" style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
-        <md-outlined-text-field id="post-image-url" label="Image URL (optional)" type="url" style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
-        <md-outlined-text-field id="post-tags-text" label="Tags (space separated, e.g. #campus)" style="width: 100%;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="post-content"
+          type="textarea"
+          label="What's on your mind?"
+          rows="3"
+          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="post-image-url"
+          label="Image URL (optional)"
+          type="url"
+          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="post-tags-text"
+          label="Tags (space separated, e.g. #campus)"
+          style="width: 100%"></md-outlined-text-field>
       </form>
       <div slot="actions">
-        <md-text-button form="publish-form" value="cancel">Cancel</md-text-button>
+        <md-text-button form="publish-form" value="cancel"
+          >Cancel</md-text-button
+        >
         <md-filled-button id="publish-confirm-btn">Post</md-filled-button>
       </div>
     </md-dialog>
 
-    <md-dialog id="post-detail-dialog" style="min-width: 320px; max-height: 80vh;">
+    <md-dialog
+      id="post-detail-dialog"
+      style="min-width: 700px; max-width: 90vw; max-height: 80vh">
       <div slot="headline">Post Details</div>
-      <div slot="content" style="padding-top: 10px;">
+      <div slot="content" style="padding-top: 10px">
         <div id="detail-post-container"></div>
-        <md-divider style="margin: 16px 0;"></md-divider>
+        <md-divider style="margin: 16px 0"></md-divider>
         <div class="comments-section">
-          <div class="md-typescale-title-small" style="margin-bottom: 12px;">Comments</div>
-          <div id="comments-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;"></div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <md-outlined-text-field id="new-comment-input" label="Write a comment..." style="flex: 1;"></md-outlined-text-field>
-            <md-icon-button id="send-comment-btn"><md-icon>send</md-icon></md-icon-button>
+          <div class="md-typescale-title-small" style="margin-bottom: 12px">
+            Comments
+          </div>
+          <div
+            id="comments-list"
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              margin-bottom: 16px;
+            "></div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <md-outlined-text-field
+              id="new-comment-input"
+              label="Write a comment..."
+              style="flex: 1"></md-outlined-text-field>
+            <md-icon-button id="send-comment-btn"
+              ><md-icon>send</md-icon></md-icon-button
+            >
           </div>
         </div>
       </div>
       <div slot="actions">
-        <md-text-button value="close" onclick="document.getElementById('post-detail-dialog').close()">Close</md-text-button>
+        <md-text-button
+          value="close"
+          onclick="document.getElementById('post-detail-dialog').close()"
+          >Close</md-text-button
+        >
       </div>
     </md-dialog>
 
@@ -208,86 +260,94 @@
 
     <!-- Member B: Account Logic -->
     <script>
-      document.addEventListener('DOMContentLoaded', () => {
-          const btnJoin = document.getElementById('btn-join');
-          const btnGuest = document.getElementById('btn-guest');
-          const navProfile = document.getElementById('nav-profile');
-          const heroTitle = document.getElementById('hero-title');
-          const avatarContainer = document.getElementById('user-avatar-container');
-          const accountMenu = document.getElementById('account-menu');
-          const menuAdmin = document.getElementById('menu-admin');
+      document.addEventListener("DOMContentLoaded", () => {
+        const btnJoin = document.getElementById("btn-join");
+        const btnGuest = document.getElementById("btn-guest");
+        const navProfile = document.getElementById("nav-profile");
+        const heroTitle = document.getElementById("hero-title");
+        const avatarContainer = document.getElementById(
+          "user-avatar-container"
+        );
+        const accountMenu = document.getElementById("account-menu");
+        const menuAdmin = document.getElementById("menu-admin");
 
-          // 1. Sync UI with Auth State
-          function updateUI() {
-              const user = window.DB.ctx();
-              if (user) {
-                  // User is logged in
-                  heroTitle.innerText = `Welcome back, ${user.nickname}!`;
-                  btnJoin.style.display = 'none';
-                  btnGuest.innerText = 'Go to Feed';
-                  
-                  // 判断角色是否为管理员
-                  if (user.role === 'admin') {
-                      menuAdmin.style.display = 'flex'; // 显示管理选项
-                  } else {
-                      menuAdmin.style.display = 'none';
-                  }
+        // 1. Sync UI with Auth State
+        function updateUI() {
+          const user = window.DB.ctx();
+          if (user) {
+            // User is logged in
+            heroTitle.innerText = `Welcome back, ${user.nickname}!`;
+            btnJoin.style.display = "none";
+            btnGuest.innerText = "Go to Feed";
 
-                  // Display Avatar and attach Menu Trigger
-                  avatarContainer.innerHTML = `
+            // 判断角色是否为管理员
+            if (user.role === "admin") {
+              menuAdmin.style.display = "flex"; // 显示管理选项
+            } else {
+              menuAdmin.style.display = "none";
+            }
+
+            // Display Avatar and attach Menu Trigger
+            avatarContainer.innerHTML = `
                     <img id="avatar-trigger" src="${user.avatar}" alt="User Profile">
                   `;
 
-                  document.getElementById('avatar-trigger').addEventListener('click', () => {
-                      accountMenu.open = !accountMenu.open;
-                  });
-              } else {
-                  // Guest mode
-                  heroTitle.innerText = "Moments that keep campus alive.";
-                  btnJoin.style.display = 'inline-flex';
-                  btnGuest.innerText = 'Browse as guest';
-                  avatarContainer.innerHTML = ''; 
-                  menuAdmin.style.display = 'none';
-              }
+            document
+              .getElementById("avatar-trigger")
+              .addEventListener("click", () => {
+                accountMenu.open = !accountMenu.open;
+              });
+          } else {
+            // Guest mode
+            heroTitle.innerText = "Moments that keep campus alive.";
+            btnJoin.style.display = "inline-flex";
+            btnGuest.innerText = "Browse as guest";
+            avatarContainer.innerHTML = "";
+            menuAdmin.style.display = "none";
           }
+        }
 
-          // 2. Navigation Actions
-          btnJoin.addEventListener('click', () => {
-              window.location.href = 'auth.html';
+        // 2. Navigation Actions
+        btnJoin.addEventListener("click", () => {
+          window.location.href = "auth.html";
+        });
+
+        btnGuest.addEventListener("click", () => {
+          document
+            .querySelector(".feed-panel")
+            .scrollIntoView({ behavior: "smooth" });
+        });
+
+        // 3. Floating Menu Actions
+        menuAdmin.addEventListener("click", () => {
+          window.location.href = "admin.html"; // 跳转到管理页面
+        });
+
+        document
+          .getElementById("menu-profile")
+          .addEventListener("click", () => {
+            window.location.href = "profile.html";
           });
 
-          btnGuest.addEventListener('click', () => {
-              document.querySelector('.feed-panel').scrollIntoView({ behavior: 'smooth' });
-          });
+        document.getElementById("menu-logout").addEventListener("click", () => {
+          window.DB.logout();
+          location.reload();
+        });
 
-          // 3. Floating Menu Actions
-          menuAdmin.addEventListener('click', () => {
-              window.location.href = 'admin.html'; // 跳转到管理页面
-          });
+        // 4. Silent Permission Guard for Bottom Navigation
+        navProfile.addEventListener("click", (e) => {
+          if (!window.DB.ctx()) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = "auth.html";
+          } else {
+            window.location.href = "profile.html";
+          }
+        });
 
-          document.getElementById('menu-profile').addEventListener('click', () => {
-              window.location.href = 'profile.html';
-          });
-
-          document.getElementById('menu-logout').addEventListener('click', () => {
-              window.DB.logout();
-              location.reload();
-          });
-
-          // 4. Silent Permission Guard for Bottom Navigation
-          navProfile.addEventListener('click', (e) => {
-              if (!window.DB.ctx()) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.location.href = 'auth.html';
-              } else {
-                  window.location.href = 'profile.html';
-              }
-          });
-
-          // Initialization & Listener
-          updateUI();
-          window.DB.on('db:update', updateUI);
+        // Initialization & Listener
+        updateUI();
+        window.DB.on("db:update", updateUI);
       });
     </script>
   </body>
