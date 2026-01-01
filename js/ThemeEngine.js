@@ -11,32 +11,64 @@ const ThemeEngine = {
             ThemeEngine._styleEl = document.getElementById('theme-engine-styles');
         }
 
-        // Load preference
-        // 1. Try DB settings if logged in
-        // 2. Try LocalStorage
-        // 3. Default to system
-        let mode = 'system';
-        const saved = localStorage.getItem('m3_theme_mode');
-        if (saved) mode = saved;
+        // Determine initial mode
+        let mode = 'light'; // Default for guest
+        const user = window.DB && window.DB.ctx();
+
+        if (user) {
+            // User logged in: use DB setting > localStorage > system
+            if (user.settings && user.settings.themeMode) {
+                mode = user.settings.themeMode;
+            } else {
+                mode = localStorage.getItem('m3_theme_mode') || 'system';
+            }
+        } else {
+            // Guest: force light
+            mode = 'light';
+        }
 
         ThemeEngine.setTheme(mode, false); // false = don't save yet, just apply
 
-        // Listen for system changes
+        // Listen for system changes (only active if mode is 'system' and logged in)
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (localStorage.getItem('m3_theme_mode') === 'system') {
-                ThemeEngine.applyMode(e.matches ? 'dark' : 'light');
+            const currentUser = window.DB && window.DB.ctx();
+            if (currentUser) {
+                const currentMode = (currentUser.settings && currentUser.settings.themeMode) || localStorage.getItem('m3_theme_mode') || 'system';
+                if (currentMode === 'system') {
+                    ThemeEngine.applyMode(e.matches ? 'dark' : 'light');
+                }
             }
+        });
+        
+        // Listen for login/logout events to refresh theme
+        window.addEventListener('db:update', (e) => {
+             if (e.detail && e.detail.key === 'session') {
+                 // Re-run init logic to switch between guest/user theme
+                 const newUser = window.DB.ctx();
+                 if (newUser) {
+                     const userMode = (newUser.settings && newUser.settings.themeMode) || localStorage.getItem('m3_theme_mode') || 'system';
+                     ThemeEngine.setTheme(userMode, false);
+                 } else {
+                     ThemeEngine.setTheme('light', false);
+                 }
+             }
         });
 
         console.log("ThemeEngine initialized");
     },
 
     setTheme: (mode, save = true) => { // mode: 'light', 'dark', 'system'
+        const user = window.DB && window.DB.ctx();
+        
+        // If guest tries to set theme (e.g. via toggle), we allow it temporarily but don't save to DB
+        // Or per requirement "Guest default light", maybe we enforce light? 
+        // Assuming "Guest default light" means initial state. If guest toggles, we can let them explore in current session or block it.
+        // Let's allow guest to toggle (save to localStorage only), but on init it defaults to light.
+        
         if (save) {
             localStorage.setItem('m3_theme_mode', mode);
             // Sync with DB if user is logged in
-            if (window.DB && window.DB.ctx()) {
-                const user = window.DB.ctx();
+            if (user) {
                 window.DB.updateUser(user.id, { 
                     settings: { ...user.settings, themeMode: mode } 
                 });
@@ -52,7 +84,16 @@ const ThemeEngine = {
     },
 
     toggle: () => {
-        const currentSetting = localStorage.getItem('m3_theme_mode') || 'system';
+        const user = window.DB && window.DB.ctx();
+        let currentSetting;
+        
+        if (user) {
+             currentSetting = (user.settings && user.settings.themeMode) || localStorage.getItem('m3_theme_mode') || 'system';
+        } else {
+             // Guest: read from localstorage (if they toggled before) or default 'light'
+             currentSetting = localStorage.getItem('m3_theme_mode') || 'light';
+        }
+
         let currentEffective = currentSetting;
         
         if (currentSetting === 'system') {
@@ -60,7 +101,6 @@ const ThemeEngine = {
         }
 
         // Simple toggle logic: if dark -> light, else -> dark
-        // And we switch away from 'system' to explicit preference
         const next = currentEffective === 'dark' ? 'light' : 'dark';
         ThemeEngine.setTheme(next);
         return next;
