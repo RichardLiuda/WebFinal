@@ -77,6 +77,10 @@
           <md-icon>notifications</md-icon>
         </md-icon-button>
 
+        <md-icon-button id="btn-theme-toggle" aria-label="Toggle Theme">
+          <md-icon>brightness_6</md-icon>
+        </md-icon-button>
+
         <!-- Member B: Avatar Slot & Anchor for Menu -->
         <div id="user-avatar-container"></div>
 
@@ -91,11 +95,6 @@
           <md-menu-item id="menu-profile">
             <div slot="headline">My Profile</div>
             <md-icon slot="start">person</md-icon>
-          </md-menu-item>
-
-          <md-menu-item id="menu-theme">
-            <div slot="headline">Toggle Theme</div>
-            <md-icon slot="start">brightness_6</md-icon>
           </md-menu-item>
           
           <md-menu-item id="menu-logout">
@@ -275,7 +274,7 @@
               window.location.href = 'profile.html';
           });
 
-          document.getElementById('menu-theme').addEventListener('click', () => {
+          document.getElementById('btn-theme-toggle').addEventListener('click', () => {
               if (window.ThemeEngine) {
                   window.ThemeEngine.toggle();
               }
