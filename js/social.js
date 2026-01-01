@@ -1,15 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // 从URL参数获取要查看的用户ID
+  const urlParams = new URLSearchParams(window.location.search);
+  const profileUserId = urlParams.get('id');
+  
   // 获取当前用户
   const currentUser = window.DB.ctx();
-  if (!currentUser) {
+  
+  // 如果没有id参数且未登录，跳转到登录页面
+  if (!profileUserId && !currentUser) {
     window.location.href = 'auth.html';
     return;
   }
-
-  // 从URL参数获取要查看的用户ID，默认是当前用户
-  const urlParams = new URLSearchParams(window.location.search);
-  const profileUserId = urlParams.get('id') || currentUser.id;
-  const isOwnProfile = String(profileUserId) === String(currentUser.id);
+  
+  // 确定要显示的用户ID：如果有id参数则使用id参数，否则使用当前用户ID
+  const displayUserId = profileUserId || currentUser.id;
+  const isOwnProfile = currentUser && String(displayUserId) === String(currentUser.id);
 
   // DOM元素
   const profileAvatar = document.getElementById('profile-avatar');
@@ -34,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProfilePosts();
     setupFollowButton();
     setupTabs();
+    setupProfileMoreButton();
     
     // 如果是自己的个人资料，隐藏关注和消息按钮
     if (isOwnProfile) {
@@ -44,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 加载个人资料数据
   function loadProfileData() {
-    const user = window.DB.getUserById(profileUserId);
+    const user = window.DB.getUserById(displayUserId);
     if (!user) {
       console.error('User not found');
       return;
@@ -69,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 更新关注按钮状态
   function updateFollowButton() {
-    const isFollowing = window.DB.isFollowing(profileUserId);
+    const isFollowing = window.DB.isFollowing(displayUserId);
     followBtn.textContent = isFollowing ? 'Unfollow' : 'Follow';
     followBtn.style.backgroundColor = isFollowing ? 'var(--md-sys-color-surface-container)' : '';
     followBtn.style.color = isFollowing ? 'var(--md-sys-color-on-surface)' : '';
@@ -77,8 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 切换关注状态
   function toggleFollow() {
-    const isFollowing = window.DB.isFollowing(profileUserId);
-    window.DB.toggleFollow(profileUserId);
+    const isFollowing = window.DB.isFollowing(displayUserId);
+    window.DB.toggleFollow(displayUserId);
     updateFollowButton();
     loadProfileData(); // 更新关注者数量
   }
@@ -86,7 +92,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // 设置标签页
   function setupTabs() {
     const tabs = profileTabs.querySelectorAll('md-primary-tab');
+    
+    // 如果不是自己的个人资料，隐藏Following和Followers标签页
+    if (!isOwnProfile) {
+      const tabFollowing = document.getElementById('tab-following');
+      const tabFollowers = document.getElementById('tab-followers');
+      if (tabFollowing) tabFollowing.style.display = 'none';
+      if (tabFollowers) tabFollowers.style.display = 'none';
+      
+      // 确保只显示Posts面板
+      panelFollowing.hidden = true;
+      panelFollowers.hidden = true;
+      panelPosts.hidden = false;
+    }
+    
     tabs.forEach(tab => {
+      // 如果标签页被隐藏，跳过事件监听
+      if (tab.style.display === 'none') return;
+      
       tab.addEventListener('click', () => {
         // 更新标签页状态
         tabs.forEach(t => t.removeAttribute('active'));
@@ -108,9 +131,93 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 设置个人资料更多按钮
+  function setupProfileMoreButton() {
+    const moreBtn = document.getElementById('more-btn');
+    const moreMenu = document.getElementById('profile-more-menu');
+    const editBtn = document.querySelector('.profile-edit-btn');
+
+    if (moreBtn && moreMenu) {
+      // 更多按钮点击事件
+      moreBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        moreMenu.style.display = moreMenu.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // 点击外部关闭菜单
+      document.addEventListener('click', () => {
+        moreMenu.style.display = 'none';
+      });
+
+      // 菜单内部点击不关闭
+      moreMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      // 编辑按钮点击事件 - 只在自己的资料页面显示和功能
+      if (editBtn) {
+        if (isOwnProfile) {
+          editBtn.addEventListener('click', () => {
+            moreMenu.style.display = 'none';
+            // 这里可以添加打开个人资料编辑对话框的逻辑
+            openEditProfileDialog();
+          });
+        } else {
+          // 如果不是自己的资料，隐藏编辑按钮
+          editBtn.style.display = 'none';
+        }
+      }
+    }
+  }
+
+  // 打开个人资料编辑对话框
+  function openEditProfileDialog() {
+    const dialog = document.getElementById('edit-profile-dialog');
+    const user = window.DB.getUserById(displayUserId);
+    const nicknameInput = document.getElementById('edit-profile-nickname');
+    const bioInput = document.getElementById('edit-profile-bio');
+    const avatarInput = document.getElementById('edit-profile-avatar');
+    const saveBtn = document.getElementById('edit-profile-confirm-btn');
+
+    if (!user) return;
+
+    // 填充用户数据到编辑表单
+    nicknameInput.value = user.nickname || '';
+    bioInput.value = user.bio || '';
+    avatarInput.value = user.avatar || '';
+
+    // 打开对话框
+    dialog.show();
+
+    // 设置保存按钮事件
+    saveBtn.onclick = () => {
+      const updatedNickname = nicknameInput.value.trim();
+      const updatedBio = bioInput.value.trim();
+      const updatedAvatar = avatarInput.value.trim();
+
+      // 准备更新的用户数据
+      const updates = {};
+      if (updatedNickname) updates.nickname = updatedNickname;
+      if (updatedBio) updates.bio = updatedBio;
+      if (updatedAvatar) updates.avatar = updatedAvatar;
+
+      // 更新用户信息
+      if (Object.keys(updates).length > 0) {
+        if (window.DB.updateUser(user.id, updates)) {
+          // 更新成功后刷新页面数据
+          loadProfileData();
+          dialog.close();
+        }
+      } else {
+        // 没有更改，直接关闭
+        dialog.close();
+      }
+    };
+  }
+
   // 加载个人资料帖子
   function loadProfilePosts() {
-    const posts = window.DB.getUserPosts(profileUserId);
+    const posts = window.DB.getUserPosts(displayUserId);
     postsContainer.innerHTML = '';
 
     if (posts.length === 0) {
@@ -131,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.dataset.postId = post.id;
 
     const author = window.DB.getUserById(post.authorId);
-    const isLiked = post.likes.includes(currentUser.id);
+    const isLiked = currentUser && post.likes.includes(currentUser.id);
     const likeIcon = isLiked ? 'favorite' : 'favorite_border';
 
     // 转义HTML内容
@@ -173,12 +280,13 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="post-author md-typescale-title-small">${escapeHtml(author.nickname || author.id)}</div>
           <div class="post-meta md-typescale-body-small">${escapeHtml(formatTime(post.timestamp))}</div>
         </div>
+        ${currentUser && String(author.id) === String(currentUser.id) ? '<div class="post-more-container"><md-icon-button class="post-more-btn" aria-label="More options" data-post-id="' + post.id + '"><md-icon>more_vert</md-icon></md-icon-button><div class="post-more-menu" style="display: none;"><div class="post-more-item post-edit-btn" data-post-id="' + post.id + '">Edit</div><div class="post-more-item post-delete-btn" data-post-id="' + post.id + '">Delete</div></div></div>' : ''}
       </div>
       <div class="post-content md-typescale-body-medium" style="margin-top: 8px;">${escapeHtml(post.content)}
         ${imagesMarkup}
       </div>
       <div class="post-tags" style="margin-top: 8px;">${tagsMarkup}</div>
-      <div class="post-actions" style="margin-top: 12px; display: flex; justify-content: space-between;">
+      <div class="post-actions" style="margin-top: 12px; display: flex;">
         <div>
           <md-outlined-button type="button" class="btn-like" data-id="${post.id}">
             <md-icon slot="icon">${likeIcon}</md-icon>
@@ -190,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </md-outlined-button>
           <md-text-button type="button">Share</md-text-button>
         </div>
-        ${String(author.id) === String(currentUser.id) ? '<div class="post-more-container"><md-icon-button class="post-more-btn" aria-label="More options" data-post-id="' + post.id + '"><md-icon>more_vert</md-icon></md-icon-button><div class="post-more-menu" style="display: none;"><div class="post-more-item post-edit-btn" data-post-id="' + post.id + '">Edit</div><div class="post-more-item post-delete-btn" data-post-id="' + post.id + '">Delete</div></div></div>' : ''}
       </div>
     `;
 
@@ -386,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 加载关注列表
   function loadFollowingList() {
     const user = window.DB.getUserById(profileUserId);
-    if (!user || !user.following) {
+    if (!user || !user.following || user.following.length === 0) {
       followingContainer.innerHTML = '<div class="empty-state">Not following anyone yet.</div>';
       return;
     }
@@ -404,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 加载粉丝列表
   function loadFollowersList() {
     const user = window.DB.getUserById(profileUserId);
-    if (!user || !user.followers) {
+    if (!user || !user.followers || user.followers.length === 0) {
       followersContainer.innerHTML = '<div class="empty-state">No followers yet.</div>';
       return;
     }
@@ -530,9 +637,18 @@ document.addEventListener('DOMContentLoaded', () => {
           accountMenu.open = !accountMenu.open;
         });
       } else {
-        // 用户未登录，清空头像容器
-        avatarContainer.innerHTML = '';
+        // 用户未登录，显示占位符头像
+        avatarContainer.innerHTML = `
+          <div id="avatar-trigger" class="placeholder-avatar">
+            <md-icon style="width: 24px; height: 24px; color: var(--md-sys-color-on-surface-variant);">person</md-icon>
+          </div>
+        `;
         menuAdmin.style.display = 'none';
+        
+        // 添加点击跳转到登录页面的事件
+        document.getElementById('avatar-trigger').addEventListener('click', () => {
+          window.location.href = 'auth.html';
+        });
       }
     }
 

@@ -136,6 +136,24 @@ md-icon[filled] {
   gap: 8px;
 }
 
+.placeholder-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--md-sys-color-outline-variant);
+  background-color: var(--md-sys-color-surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.placeholder-avatar:hover {
+  transform: scale(1.1);
+}
+
 .app-shell {
   width: min(100%, var(--app-max-width));
   margin: 0 auto;
@@ -238,6 +256,74 @@ md-icon[filled] {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.post-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.post-more-container {
+  position: relative;
+  display: inline-block;
+  margin-left: auto;
+}
+
+.post-more-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--app-shadow-2);
+  padding: 8px;
+  min-width: 120px;
+  z-index: 100;
+}
+
+.post-more-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: var(--md-sys-shape-corner-medium);
+  font-size: 0.9rem;
+}
+
+.post-more-item:hover {
+  background: var(--md-sys-color-surface-variant);
+}
+
+.profile-more-container {
+  position: relative;
+  display: inline-block;
+  margin-left: auto;
+}
+
+.profile-more-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--app-shadow-2);
+  padding: 8px;
+  min-width: 120px;
+  z-index: 100;
+}
+
+.profile-more-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: var(--md-sys-shape-corner-medium);
+  font-size: 0.9rem;
+}
+
+.profile-more-item:hover {
+  background: var(--md-sys-color-surface-variant);
 }
 
 .empty-state {

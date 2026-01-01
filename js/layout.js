@@ -120,11 +120,33 @@
       // Check if user is logged in and not the author
       const isCurrentUser = user && String(user.id) === String(post.authorId);
       const isFollowing = user && !isCurrentUser && window.DB.isFollowing ? window.DB.isFollowing(post.authorId) : false;
-      const followBtnHtml = user && !isCurrentUser ? `
-        <md-outlined-button type="button" class="btn-follow" data-author-id="${post.authorId}">
-          ${isFollowing ? 'Unfollow' : 'Follow'}
-        </md-outlined-button>
-      ` : '';
+      
+      // Generate more options menu based on rules
+      let moreMenuHtml = '';
+      if (user) {
+        let menuItems = [];
+        if (isCurrentUser) {
+          // Post author is current user: Edit and Delete
+          menuItems.push(`<div class="post-more-item post-edit-btn" data-post-id="${post.id}">Edit</div>`);
+          menuItems.push(`<div class="post-more-item post-delete-btn" data-post-id="${post.id}">Delete</div>`);
+        } else {
+          // Post author is not current user: Follow/Unfollow
+          menuItems.push(`<div class="post-more-item btn-follow" data-author-id="${post.authorId}">${isFollowing ? 'Unfollow' : 'Follow'}</div>`);
+        }
+        
+        if (menuItems.length > 0) {
+          moreMenuHtml = `
+            <div class="post-more-container">
+              <md-icon-button class="post-more-btn" aria-label="More options" data-post-id="${post.id}">
+                <md-icon>more_vert</md-icon>
+              </md-icon-button>
+              <div class="post-more-menu" style="display: none;">
+                ${menuItems.join('')}
+              </div>
+            </div>
+          `;
+        }
+      }
 
       card.innerHTML = `
         <div class="post-header">
@@ -137,7 +159,7 @@
             formatTime(post.timestamp)
           )} ${author ? `• ${author.stats?.followers || 0} followers` : ''}</div>
           </div>
-          ${followBtnHtml}
+          ${moreMenuHtml}
         </div>
         <div class="post-content md-typescale-body-medium" style="margin-top: 8px;">${escapeHtml(
           post.content
@@ -162,15 +184,61 @@
 
     panel.list.appendChild(fragment);
 
-    // Add event listeners for follow buttons
-    panel.list.querySelectorAll('.btn-follow').forEach(button => {
-      button.addEventListener('click', () => {
-        const authorId = button.dataset.authorId;
-        if (window.DB && window.DB.toggleFollow) {
-          const isFollowing = window.DB.toggleFollow(authorId);
-          button.textContent = isFollowing ? 'Unfollow' : 'Follow';
-        }
+    // Add event listeners for more options buttons
+    panel.list.querySelectorAll('.post-more-btn').forEach(button => {
+      const postId = button.dataset.postId;
+      const moreMenu = button.closest('.post-more-container').querySelector('.post-more-menu');
+      
+      // Toggle more menu
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        moreMenu.style.display = moreMenu.style.display === 'none' ? 'block' : 'none';
       });
+      
+      // Click outside to close menu
+      document.addEventListener('click', () => {
+        moreMenu.style.display = 'none';
+      });
+      
+      // Edit button event
+      const editBtn = moreMenu.querySelector('.post-edit-btn');
+      if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          moreMenu.style.display = 'none';
+          // Call edit function if available
+          if (window.openEditPostDialog) {
+            openEditPostDialog(postId);
+          }
+        });
+      }
+      
+      // Delete button event
+      const deleteBtn = moreMenu.querySelector('.post-delete-btn');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          moreMenu.style.display = 'none';
+          // Call delete function if available
+          if (window.deletePost) {
+            window.deletePost(postId);
+          }
+        });
+      }
+      
+      // Follow button event
+      const followBtn = moreMenu.querySelector('.btn-follow');
+      if (followBtn) {
+        followBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          moreMenu.style.display = 'none';
+          const authorId = followBtn.dataset.authorId;
+          if (window.DB && window.DB.toggleFollow) {
+            const isFollowing = window.DB.toggleFollow(authorId);
+            followBtn.textContent = isFollowing ? 'Unfollow' : 'Follow';
+          }
+        });
+      }
     });
   };
 
@@ -230,6 +298,64 @@
 
   setActiveFilter(state.filter);
   setActiveRoute(state.route);
+
+  // 打开编辑帖子对话框
+  function openEditPostDialog(postId) {
+    if (typeof postId === "string") postId = parseInt(postId, 10);
+    const dialog = document.getElementById('edit-post-dialog');
+    const post = window.DB.getPostById(postId);
+    const contentInput = document.getElementById('edit-post-content');
+    const imageUrlInput = document.getElementById('edit-post-image-url');
+    const tagsInput = document.getElementById('edit-post-tags-text');
+    const saveBtn = document.getElementById('edit-confirm-btn');
+
+    if (!post) return;
+
+    // 填充帖子数据到编辑表单
+    contentInput.value = post.content;
+    imageUrlInput.value = post.images && post.images.length > 0 ? post.images[0] : '';
+    tagsInput.value = post.tags ? post.tags.join(' ') : '';
+
+    // 打开对话框
+    dialog.show();
+
+    // 设置保存按钮事件
+    saveBtn.onclick = () => {
+      const updatedContent = contentInput.value.trim();
+      const updatedImageUrl = imageUrlInput.value.trim();
+      const updatedTags = tagsInput.value.trim().split(/\s+/).filter(tag => tag);
+
+      if (updatedContent) {
+        // 准备更新的帖子数据
+        const updatedPost = {
+          ...post,
+          content: updatedContent,
+          images: updatedImageUrl ? [updatedImageUrl] : [],
+          tags: updatedTags
+        };
+
+        // 更新帖子
+        if (window.DB.updatePost(updatedPost)) {
+          renderFeed(); // 重新加载帖子列表
+          dialog.close();
+        }
+      }
+    };
+  }
+
+  // 删除帖子
+  function deletePost(postId) {
+    if (typeof postId === "string") postId = parseInt(postId, 10);
+    if (confirm('Are you sure you want to delete this post?')) {
+      if (window.DB.deletePost(postId)) {
+        renderFeed(); // 重新加载帖子列表
+      }
+    }
+  }
+
+  // 导出函数到全局，方便其他地方调用
+  window.openEditPostDialog = openEditPostDialog;
+  window.deletePost = deletePost;
 
   if (window.customElements && customElements.whenDefined) {
     customElements.whenDefined("md-tabs").then(() => {

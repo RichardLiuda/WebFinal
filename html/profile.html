@@ -36,7 +36,10 @@
       .profile-container {
         max-width: 800px;
         margin: 0 auto;
-        padding: 0 16px;
+        padding: var(--app-gap) 16px var(--app-bottom-padding);
+        display: flex;
+        flex-direction: column;
+        gap: var(--app-gap);
       }
       
       .profile-header {
@@ -107,14 +110,6 @@
         gap: 12px;
         justify-content: flex-end;
         margin-top: 16px;
-      }
-      
-      .profile-content {
-        margin-top: 24px;
-      }
-      
-      .profile-tabs {
-        margin-bottom: 24px;
       }
       
       .posts-container {
@@ -255,6 +250,42 @@
         justify-content: space-between;
         align-items: center;
       }
+      
+      /* 个人资料更多选项菜单样式 */
+      .profile-more-container {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .profile-more-menu {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: var(--md-sys-color-surface);
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        z-index: 100;
+        min-width: 160px;
+        padding: 8px 0;
+        border: 1px solid var(--md-sys-color-outline-variant);
+      }
+      
+      .profile-more-item {
+        display: block;
+        width: 100%;
+        padding: 8px 16px;
+        text-align: left;
+        border: none;
+        background: none;
+        font-size: 14px;
+        color: var(--md-sys-color-on-surface);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      
+      .profile-more-item:hover {
+        background-color: var(--md-sys-color-surface-container);
+      }
     </style>
   </head>
   <body>
@@ -269,14 +300,6 @@
         </div>
       </div>
       <div class="app-actions">
-        <md-icon-button aria-label="Search">
-          <md-icon>search</md-icon>
-        </md-icon-button>
-
-        <md-icon-button aria-label="Notifications">
-          <md-icon>notifications</md-icon>
-        </md-icon-button>
-
         <div id="user-avatar-container"></div>
 
         <md-menu id="account-menu" anchor="user-avatar-container">
@@ -299,75 +322,90 @@
     </header>
 
     <main class="profile-container">
-      <div class="profile-header">
-        <div class="profile-info">
-          <div class="profile-avatar-container">
-            <img id="profile-avatar" class="profile-avatar" src="" alt="Profile Avatar">
-            
-            <div class="profile-details">
-              <h1 id="profile-name" class="profile-name"></h1>
-              <p id="profile-bio" class="profile-bio"></p>
+      <section class="feed-panel surface-card">
+        <div class="profile-more-container">
+          <md-icon-button id="more-btn" aria-label="More options">
+            <md-icon>more_vert</md-icon>
+          </md-icon-button>
+          <div id="profile-more-menu" class="profile-more-menu" style="display: none;">
+            <div class="profile-more-item profile-edit-btn">Edit Profile</div>
+            <div class="profile-more-item">Privacy Settings</div>
+            <div class="profile-more-item">Account Settings</div>
+          </div>
+        </div>
+        <div class="profile-header">
+          <div class="profile-info">
+            <div class="profile-avatar-container">
+              <img id="profile-avatar" class="profile-avatar" src="" alt="Profile Avatar">
               
-              <div class="profile-stats">
-                <div class="stat-item">
-                  <span id="posts-count" class="stat-value">0</span>
-                  <span class="stat-label">Posts</span>
-                </div>
-                <div class="stat-item">
-                  <span id="following-count" class="stat-value">0</span>
-                  <span class="stat-label">Following</span>
-                </div>
-                <div class="stat-item">
-                  <span id="followers-count" class="stat-value">0</span>
-                  <span class="stat-label">Followers</span>
+              <div class="profile-details">
+                <h1 id="profile-name" class="profile-name"></h1>
+                <p id="profile-bio" class="profile-bio"></p>
+                
+                <div class="profile-stats">
+                  <div class="stat-item">
+                    <span id="posts-count" class="stat-value">0</span>
+                    <span class="stat-label">Posts</span>
+                  </div>
+                  <div class="stat-item">
+                    <span id="following-count" class="stat-value">0</span>
+                    <span class="stat-label">Following</span>
+                  </div>
+                  <div class="stat-item">
+                    <span id="followers-count" class="stat-value">0</span>
+                    <span class="stat-label">Followers</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <div class="profile-actions">
-            <md-filled-button id="follow-btn">Follow</md-filled-button>
-            <md-outlined-button id="message-btn">Message</md-outlined-button>
-            <md-icon-button id="more-btn" aria-label="More options">
-              <md-icon>more_vert</md-icon>
-            </md-icon-button>
+            
+            <div class="profile-actions">
+              <md-filled-button id="follow-btn">Follow</md-filled-button>
+              <md-outlined-button id="message-btn">Message</md-outlined-button>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
       
       <div class="profile-content">
-        <md-tabs id="profile-tabs" class="profile-tabs" aria-label="Profile tabs">
-          <md-primary-tab id="tab-posts" data-tab="posts" active aria-controls="panel-posts">Posts</md-primary-tab>
-          <md-primary-tab id="tab-following" data-tab="following" aria-controls="panel-following">Following</md-primary-tab>
-          <md-primary-tab id="tab-followers" data-tab="followers" aria-controls="panel-followers">Followers</md-primary-tab>
-        </md-tabs>
-        
-        <div class="feed-panels">
-          <div id="panel-posts" role="tabpanel" aria-labelledby="tab-posts">
-            <div id="posts-container" class="posts-container"></div>
+        <section class="feed-panel surface-card">
+          <md-tabs id="profile-tabs" class="feed-tabs" aria-label="Profile tabs">
+            <md-primary-tab id="tab-posts" data-tab="posts" active aria-controls="panel-posts">Posts</md-primary-tab>
+            <md-primary-tab id="tab-following" data-tab="following" aria-controls="panel-following">Following</md-primary-tab>
+            <md-primary-tab id="tab-followers" data-tab="followers" aria-controls="panel-followers">Followers</md-primary-tab>
+          </md-tabs>
+          
+          <div class="feed-panels">
+            <div id="panel-posts" role="tabpanel" aria-labelledby="tab-posts">
+              <div id="posts-container" class="posts-container"></div>
+            </div>
+            <div id="panel-following" role="tabpanel" aria-labelledby="tab-following" hidden>
+              <div id="following-container" class="feed-list"></div>
+            </div>
+            <div id="panel-followers" role="tabpanel" aria-labelledby="tab-followers" hidden>
+              <div id="followers-container" class="feed-list"></div>
+            </div>
           </div>
-          <div id="panel-following" role="tabpanel" aria-labelledby="tab-following" hidden>
-            <div id="following-container" class="feed-list"></div>
-          </div>
-          <div id="panel-followers" role="tabpanel" aria-labelledby="tab-followers" hidden>
-            <div id="followers-container" class="feed-list"></div>
-          </div>
-        </div>
+        </section>
       </div>
     </main>
+
+    <md-fab class="fab" variant="primary" aria-label="Create post">
+      <md-icon slot="icon">add</md-icon>
+    </md-fab>
 
     <nav class="bottom-nav" aria-label="Primary">
       <button class="nav-item" type="button" data-route="home">
         <md-icon>home</md-icon>
         <span class="nav-label">Home</span>
       </button>
-      <button class="nav-item" type="button" data-route="post">
-        <md-icon>edit</md-icon>
-        <span class="nav-label">Post</span>
-      </button>
       <button class="nav-item" type="button" data-route="explore">
         <md-icon>explore</md-icon>
         <span class="nav-label">Explore</span>
+      </button>
+      <button class="nav-item" type="button" data-route="notification">
+        <md-icon>notifications</md-icon>
+        <span class="nav-label">Notifications</span>
       </button>
       <button
         class="nav-item is-active"
@@ -405,7 +443,7 @@
       </div>
     </md-dialog>
 
-    <md-dialog id="post-detail-dialog" style="min-width: 700px; max-width: 90vw; max-height: 80vh;">
+    <md-dialog id="post-detail-dialog" style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
       <div slot="headline">Post Details</div>
       <div slot="content" style="padding-top: 10px;">
         <div id="detail-post-container">
@@ -433,7 +471,7 @@
     </md-dialog>
     
     <!-- Edit Post Dialog -->
-    <md-dialog id="edit-post-dialog" style="min-width: 700px; max-width: 90vw; max-height: 80vh;">
+    <md-dialog id="edit-post-dialog" style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
       <div slot="headline">Edit Post</div>
       <form slot="content" id="edit-form" method="dialog" style="padding-top: 10px;">
         <md-outlined-text-field
@@ -455,6 +493,32 @@
       <div slot="actions">
         <md-text-button form="edit-form" value="cancel">Cancel</md-text-button>
         <md-filled-button id="edit-confirm-btn">Save Changes</md-filled-button>
+      </div>
+    </md-dialog>
+    
+    <!-- Edit Profile Dialog -->
+    <md-dialog id="edit-profile-dialog" style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
+      <div slot="headline">Edit Profile</div>
+      <form slot="content" id="edit-profile-form" method="dialog" style="padding-top: 10px;">
+        <md-outlined-text-field
+          id="edit-profile-nickname"
+          label="Nickname"
+          style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-profile-bio"
+          type="textarea"
+          label="Bio"
+          rows="3"
+          style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-profile-avatar"
+          label="Avatar URL (optional)"
+          type="url"
+          style="width: 100%;"></md-outlined-text-field>
+      </form>
+      <div slot="actions">
+        <md-text-button form="edit-profile-form" value="cancel">Cancel</md-text-button>
+        <md-filled-button id="edit-profile-confirm-btn">Save Changes</md-filled-button>
       </div>
     </md-dialog>
 

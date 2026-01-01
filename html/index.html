@@ -68,15 +68,6 @@
         </div>
       </div>
       <div class="app-actions">
-        <!-- Persistent Action Buttons -->
-        <md-icon-button aria-label="Search">
-          <md-icon>search</md-icon>
-        </md-icon-button>
-
-        <md-icon-button aria-label="Notifications">
-          <md-icon>notifications</md-icon>
-        </md-icon-button>
-
         <!-- Member B: Avatar Slot & Anchor for Menu -->
         <div id="user-avatar-container"></div>
 
@@ -168,13 +159,13 @@
         <md-icon>home</md-icon>
         <span class="nav-label">Home</span>
       </button>
-      <button class="nav-item" type="button" data-route="post">
-        <md-icon>edit</md-icon>
-        <span class="nav-label">Post</span>
-      </button>
       <button class="nav-item" type="button" data-route="explore">
         <md-icon>explore</md-icon>
         <span class="nav-label">Explore</span>
+      </button>
+      <button class="nav-item" type="button" data-route="notification">
+        <md-icon>notifications</md-icon>
+        <span class="nav-label">Notifications</span>
       </button>
       <button
         class="nav-item"
@@ -216,7 +207,7 @@
 
     <md-dialog
       id="post-detail-dialog"
-      style="min-width: 700px; max-width: 90vw; max-height: 80vh">
+      style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
       <div slot="headline">Post Details</div>
       <div slot="content" style="padding-top: 10px">
         <div id="detail-post-container"></div>
@@ -250,6 +241,32 @@
           onclick="document.getElementById('post-detail-dialog').close()"
           >Close</md-text-button
         >
+      </div>
+    </md-dialog>
+
+    <!-- Edit Post Dialog -->
+    <md-dialog id="edit-post-dialog">
+      <div slot="headline">Edit Post</div>
+      <form slot="content" id="edit-post-form">
+        <md-outlined-text-field
+          id="edit-post-content"
+          type="textarea"
+          label="Post content"
+          rows="3"
+          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-post-image-url"
+          label="Image URL (optional)"
+          type="url"
+          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-post-tags-text"
+          label="Tags (space separated, e.g. #campus)"
+          style="width: 100%"></md-outlined-text-field>
+      </form>
+      <div slot="actions">
+        <md-text-button form="edit-post-form" value="cancel">Cancel</md-text-button>
+        <md-filled-button id="edit-confirm-btn">Save</md-filled-button>
       </div>
     </md-dialog>
 
@@ -302,7 +319,19 @@
             heroTitle.innerText = "Moments that keep campus alive.";
             btnJoin.style.display = "inline-flex";
             btnGuest.innerText = "Browse as guest";
-            avatarContainer.innerHTML = "";
+            
+            // 显示占位符头像
+            avatarContainer.innerHTML = `
+              <div id="avatar-trigger" class="placeholder-avatar">
+                <md-icon style="width: 24px; height: 24px; color: var(--md-sys-color-on-surface-variant);">person</md-icon>
+              </div>
+            `;
+            
+            // 添加点击跳转到登录页面的事件
+            document.getElementById('avatar-trigger').addEventListener('click', () => {
+              window.location.href = 'auth.html';
+            });
+            
             menuAdmin.style.display = "none";
           }
         }
