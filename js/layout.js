@@ -290,6 +290,8 @@
         } else {
           window.location.href = "auth.html";
         }
+      } else if (route === "notification") {
+        window.location.href = "notifications.html";
       }
     });
   });

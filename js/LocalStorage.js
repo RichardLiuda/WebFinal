@@ -1,7 +1,8 @@
 const DB_KEYS = {
     USERS: 'm3_users',
     POSTS: 'm3_posts',
-    CURRENT_USER: 'm3_session'
+    CURRENT_USER: 'm3_session',
+    NOTIFICATIONS: 'm3_notifications'
 };
 
 const Utils = {
@@ -184,6 +185,11 @@ const DB = {
         const likeIndex = post.likes.findIndex(id => String(id) === String(currentUser.id));
         if (likeIndex === -1) {
             post.likes.push(currentUser.id);
+            
+            // 创建点赞通知
+            if (String(post.authorId) !== String(currentUser.id)) {
+                DB.createNotification('like', postId, currentUser.id, post.authorId);
+            }
         } else {
             post.likes.splice(likeIndex, 1);
         }
@@ -196,6 +202,7 @@ const DB = {
         const posts = DB._get(DB_KEYS.POSTS);
         const postIndex = posts.findIndex(p => p.id === postId);
         if (postIndex === -1) return null;
+        const post = posts[postIndex];
         const newComment = {
             id: Date.now(),
             authorId: currentUser.id,
@@ -204,6 +211,12 @@ const DB = {
         };
         posts[postIndex].comments.push(newComment);
         DB._set(DB_KEYS.POSTS, posts);
+        
+        // 创建评论通知
+        if (String(post.authorId) !== String(currentUser.id)) {
+            DB.createNotification('comment', postId, newComment.id, post.authorId);
+        }
+        
         return newComment;
     },
     getFeed: (filter = 'all', params = {}) => {
@@ -259,6 +272,9 @@ const DB = {
         if (followIndex === -1) {
             currentUserData.following.push(targetId);
             targetUserData.followers.push(currentUser.id);
+            
+            // 创建关注通知
+            DB.createNotification('follow', targetId, currentUser.id, targetId);
         } else {
             currentUserData.following.splice(followIndex, 1);
             const followerIndex = targetUserData.followers.findIndex(id => String(id) === String(currentUser.id));
@@ -320,6 +336,66 @@ const DB = {
             (p.content && p.content.toLowerCase().includes(lowerQuery)) ||
             (p.tags && p.tags.some(tag => tag.toLowerCase().includes(lowerQuery)))
         );
+    },
+    // Notification Management
+    createNotification: (type, sourceId, targetId, recipientId) => {
+        const currentUser = DB.ctx();
+        if (!currentUser) return null;
+        
+        const notifications = DB._get(DB_KEYS.NOTIFICATIONS);
+        const newNotification = {
+            id: Date.now(),
+            type: type, // 'like', 'comment', 'follow'
+            sourceId: sourceId,
+            targetId: targetId,
+            recipientId: recipientId,
+            isRead: false,
+            timestamp: new Date().toISOString()
+        };
+        
+        notifications.unshift(newNotification);
+        DB._set(DB_KEYS.NOTIFICATIONS, notifications);
+        return newNotification;
+    },
+    getNotifications: (userId) => {
+        const notifications = DB._get(DB_KEYS.NOTIFICATIONS);
+        return notifications.filter(n => String(n.recipientId) === String(userId));
+    },
+    markAsRead: (notificationId) => {
+        const notifications = DB._get(DB_KEYS.NOTIFICATIONS);
+        const notificationIndex = notifications.findIndex(n => n.id === notificationId);
+        if (notificationIndex === -1) return false;
+        
+        notifications[notificationIndex].isRead = true;
+        DB._set(DB_KEYS.NOTIFICATIONS, notifications);
+        return true;
+    },
+    markAllAsRead: (userId) => {
+        const notifications = DB._get(DB_KEYS.NOTIFICATIONS);
+        const updatedNotifications = notifications.map(n => {
+            if (String(n.recipientId) === String(userId)) {
+                return { ...n, isRead: true };
+            }
+            return n;
+        });
+        
+        DB._set(DB_KEYS.NOTIFICATIONS, updatedNotifications);
+        return true;
+    },
+    deleteNotification: (notificationId) => {
+        const notifications = DB._get(DB_KEYS.NOTIFICATIONS);
+        const updatedNotifications = notifications.filter(n => n.id !== notificationId);
+        
+        if (updatedNotifications.length === notifications.length) return false;
+        
+        DB._set(DB_KEYS.NOTIFICATIONS, updatedNotifications);
+        return true;
+    },
+    getUnreadNotificationCount: (userId) => {
+        const notifications = DB._get(DB_KEYS.NOTIFICATIONS);
+        return notifications.filter(n => 
+            String(n.recipientId) === String(userId) && !n.isRead
+        ).length;
     }
 };
 

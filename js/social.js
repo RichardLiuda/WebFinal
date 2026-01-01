@@ -52,6 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isOwnProfile) {
       followBtn.style.display = 'none';
       messageBtn.style.display = 'none';
+    } else {
+      // 如果不是自己的个人资料，隐藏悬浮添加按钮
+      const fabBtn = document.querySelector('.fab');
+      if (fabBtn) {
+        fabBtn.style.display = 'none';
+      }
     }
   }
   
@@ -780,6 +786,9 @@ document.addEventListener('DOMContentLoaded', () => {
             break;
           case 'profile':
             // 当前已经在profile页面，不需要跳转
+            break;
+          case 'notifications':
+            window.location.href = 'notifications.html';
             break;
         }
       });

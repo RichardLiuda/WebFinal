@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CampusLink | Notifications</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="//fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet" />
+    <link
+      href="//fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1"
+      rel="stylesheet" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@material/web/": "https://esm.run/@material/web/"
+        }
+      }
+    </script>
+    <script type="module">
+      import "@material/web/all.js";
+      import { styles as typescaleStyles } from "@material/web/typography/md-typescale-styles.js";
+
+      if ("adoptedStyleSheets" in document) {
+        document.adoptedStyleSheets = [
+          ...document.adoptedStyleSheets,
+          typescaleStyles.styleSheet,
+        ];
+      }
+    </script>
+    <link rel="stylesheet" href="../css/global.css" />
+    <style>
+      /* Member B: Avatar styling and layout consistency */
+      #user-avatar-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+      #avatar-trigger {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid var(--md-sys-color-outline-variant);
+        margin-left: 8px;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #avatar-trigger:hover {
+        transform: scale(1.1);
+      }
+      /* 默认隐藏管理员选项 */
+      #menu-admin {
+        display: none;
+      }
+
+      /* Notifications specific styles */
+      .notifications-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .notification-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 16px;
+        border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        transition: background-color 0.2s;
+      }
+      .notification-item:hover {
+        background-color: var(--md-sys-color-surface-variant);
+      }
+      .notification-item.unread {
+        background-color: var(--md-sys-color-secondary-container);
+      }
+      .notification-icon {
+        margin-right: 16px;
+        font-size: 24px;
+        color: var(--md-sys-color-primary);
+      }
+      .notification-content {
+        flex: 1;
+      }
+      .notification-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: 16px;
+      }
+      .notification-time {
+        font-size: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+        margin-top: 4px;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 64px 16px;
+        color: var(--md-sys-color-on-surface-variant);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top-app-bar">
+      <div class="brand">
+        <div class="brand-mark">CL</div>
+        <div class="brand-text">
+          <span class="md-typescale-title-large brand-name">CampusLink</span>
+          <span class="md-typescale-body-small brand-sub"
+            >Campus social studio</span
+          >
+        </div>
+      </div>
+      <div class="app-actions">
+        <!-- Member B: Avatar Slot & Anchor for Menu -->
+        <div id="user-avatar-container"></div>
+
+        <!-- Member B: Floating Account Menu -->
+        <md-menu id="account-menu" anchor="user-avatar-container">
+          <!-- 管理员控制台：仅限 admin 角色可见 -->
+          <md-menu-item id="menu-admin">
+            <div slot="headline">Admin Console</div>
+            <md-icon slot="start">admin_panel_settings</md-icon>
+          </md-menu-item>
+
+          <md-menu-item id="menu-profile">
+            <div slot="headline">My Profile</div>
+            <md-icon slot="start">person</md-icon>
+          </md-menu-item>
+
+          <md-menu-item id="menu-logout">
+            <div slot="headline">Logout</div>
+            <md-icon slot="start">logout</md-icon>
+          </md-menu-item>
+        </md-menu>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="hero surface-card">
+        <span class="md-typescale-label-large hero-tag">Notifications</span>
+        <h1 class="md-typescale-display-small">Your Activity Feed</h1>
+        <p class="md-typescale-body-large">
+          Stay updated with likes, comments, and new followers.
+        </p>
+      </section>
+
+      <div class="main-content">
+        
+        <section class="tags-filter-card surface-card"></section>
+        <section class="feed-panel surface-card">
+          <md-tabs id="notifications-tabs" class="feed-tabs" aria-label="Notifications filter">
+            <md-primary-tab
+              id="tab-like-notifications"
+              data-type="like"
+              active
+              aria-controls="panel-like-notifications">
+              Likes
+            </md-primary-tab>
+            <md-primary-tab
+              id="tab-comment-notifications"
+              data-type="comment"
+              aria-controls="panel-comment-notifications">
+              Comments
+            </md-primary-tab>
+            <md-primary-tab
+              id="tab-follow-notifications"
+              data-type="follow"
+              aria-controls="panel-follow-notifications">
+              Follows
+            </md-primary-tab>
+          </md-tabs>
+
+          <div class="notification-header" style="margin-top: 16px;">
+            <div class="md-typescale-title-small">Notifications</div>
+            <md-text-button id="mark-all-read-btn">
+              Mark All as Read
+            </md-text-button>
+          </div>
+
+          <div class="feed-panels">
+            <div
+              id="panel-like-notifications"
+              role="tabpanel"
+              aria-labelledby="tab-like-notifications">
+              <div id="notifications-empty-like" class="empty-state" hidden>
+                <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">favorite</md-icon>
+                <div class="md-typescale-title-medium">No like notifications</div>
+                <div class="md-typescale-body-large">When someone likes your post, they'll appear here.</div>
+              </div>
+              <div id="notifications-list-like" class="notifications-list"></div>
+            </div>
+            <div
+              id="panel-comment-notifications"
+              role="tabpanel"
+              aria-labelledby="tab-comment-notifications"
+              hidden>
+              <div id="notifications-empty-comment" class="empty-state" hidden>
+                <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">comment</md-icon>
+                <div class="md-typescale-title-medium">No comment notifications</div>
+                <div class="md-typescale-body-large">When someone comments on your post, they'll appear here.</div>
+              </div>
+              <div id="notifications-list-comment" class="notifications-list"></div>
+            </div>
+            <div
+              id="panel-follow-notifications"
+              role="tabpanel"
+              aria-labelledby="tab-follow-notifications"
+              hidden>
+              <div id="notifications-empty-follow" class="empty-state" hidden>
+                <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">person_add</md-icon>
+                <div class="md-typescale-title-medium">No follow notifications</div>
+                <div class="md-typescale-body-large">When someone follows you, they'll appear here.</div>
+              </div>
+              <div id="notifications-list-follow" class="notifications-list"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Primary">
+      <button class="nav-item" type="button" data-route="home">
+        <md-icon>home</md-icon>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" type="button" data-route="explore">
+        <md-icon>explore</md-icon>
+        <span class="nav-label">Explore</span>
+      </button>
+      <button class="nav-item is-active" type="button" data-route="notification">
+        <md-icon>notifications</md-icon>
+        <span class="nav-label">Notifications</span>
+      </button>
+      <button
+        class="nav-item"
+        type="button"
+        data-route="profile"
+        id="nav-profile"
+      >
+        <md-icon>person</md-icon>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="../js/LocalStorage.js"></script>
+    <script src="../js/layout.js"></script>
+    <script src="../js/notifications.js"></script>
+  </body>
+</html>
