@@ -34,9 +34,9 @@
     <style>
       /* Profile page specific styles */
       .profile-container {
-        max-width: 800px;
+        width: min(100%, var(--app-max-width));
         margin: 0 auto;
-        padding: var(--app-gap) 16px var(--app-bottom-padding);
+        padding: var(--app-gap) var(--app-side-padding) var(--app-bottom-padding);
         display: flex;
         flex-direction: column;
         gap: var(--app-gap);
@@ -368,25 +368,45 @@
       </section>
       
       <div class="profile-content">
-        <section class="feed-panel surface-card">
-          <md-tabs id="profile-tabs" class="feed-tabs" aria-label="Profile tabs">
-            <md-primary-tab id="tab-posts" data-tab="posts" active aria-controls="panel-posts">Posts</md-primary-tab>
-            <md-primary-tab id="tab-following" data-tab="following" aria-controls="panel-following">Following</md-primary-tab>
-            <md-primary-tab id="tab-followers" data-tab="followers" aria-controls="panel-followers">Followers</md-primary-tab>
-          </md-tabs>
+        <div class="main-content">
+          <!-- Tags Filter Card -->
+          <section class="tags-filter-card surface-card" id="tags-filter-card">
+            <div class="md-typescale-title-small">Filter by Tags</div>
+            <md-outlined-text-field id="tag-input" label="Add a tag" placeholder="e.g., campus, event"></md-outlined-text-field>
+            <md-filled-button id="add-tag-btn">Add Tag</md-filled-button>
+            <div class="md-typescale-body-small">Current Tags:</div>
+            <div id="tags-list" class="tags-list"></div>
+            <md-outlined-button id="clear-tags-btn">Clear All</md-outlined-button>
+          </section>
           
-          <div class="feed-panels">
-            <div id="panel-posts" role="tabpanel" aria-labelledby="tab-posts">
-              <div id="posts-container" class="posts-container"></div>
+          <!-- User Search Card -->
+          <section class="tags-filter-card surface-card" id="user-search-card" style="display: none;">
+            <div class="md-typescale-title-small">Search Users</div>
+            <md-outlined-text-field id="user-search-input" label="Search by ID or Nickname"></md-outlined-text-field>
+            <md-filled-button id="user-search-btn">Search</md-filled-button>
+            <div class="md-typescale-body-small" id="search-result-count" style="margin-top: 16px;">No results yet</div>
+          </section>
+          
+          <section class="feed-panel surface-card">
+            <md-tabs id="profile-tabs" class="feed-tabs" aria-label="Profile tabs">
+              <md-primary-tab id="tab-posts" data-tab="posts" active aria-controls="panel-posts">Posts</md-primary-tab>
+              <md-primary-tab id="tab-following" data-tab="following" aria-controls="panel-following">Following</md-primary-tab>
+              <md-primary-tab id="tab-followers" data-tab="followers" aria-controls="panel-followers">Followers</md-primary-tab>
+            </md-tabs>
+            
+            <div class="feed-panels">
+              <div id="panel-posts" role="tabpanel" aria-labelledby="tab-posts">
+                <div id="posts-container" class="posts-container"></div>
+              </div>
+              <div id="panel-following" role="tabpanel" aria-labelledby="tab-following" hidden>
+                <div id="following-container" class="feed-list"></div>
+              </div>
+              <div id="panel-followers" role="tabpanel" aria-labelledby="tab-followers" hidden>
+                <div id="followers-container" class="feed-list"></div>
+              </div>
             </div>
-            <div id="panel-following" role="tabpanel" aria-labelledby="tab-following" hidden>
-              <div id="following-container" class="feed-list"></div>
-            </div>
-            <div id="panel-followers" role="tabpanel" aria-labelledby="tab-followers" hidden>
-              <div id="followers-container" class="feed-list"></div>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </main>
 

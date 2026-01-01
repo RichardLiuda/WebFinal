@@ -163,6 +163,60 @@ md-icon[filled] {
   gap: var(--app-gap);
 }
 
+.main-content {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--app-gap);
+  align-items: start;
+}
+
+.tags-filter-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.tags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.filter-tag-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tag-pill:hover {
+  background: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-on-secondary);
+}
+
+.filter-tag-pill .remove-tag {
+  margin-left: 8px;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.filter-tag-pill:hover .remove-tag {
+  opacity: 1;
+}
+
 .surface-card {
   background: var(--md-sys-color-surface-container);
   border: 1px solid var(--md-sys-color-outline-variant);
@@ -424,6 +478,14 @@ md-icon[filled] {
 
   .fab {
     right: 16px;
+  }
+
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .tags-filter-card {
+    position: static;
   }
 }
 

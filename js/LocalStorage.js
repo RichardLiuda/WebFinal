@@ -206,23 +206,38 @@ const DB = {
         DB._set(DB_KEYS.POSTS, posts);
         return newComment;
     },
-    getFeed: (filter = 'all') => {
+    getFeed: (filter = 'all', params = {}) => {
         const currentUser = DB.ctx();
         const posts = DB._get(DB_KEYS.POSTS);
+        
+        // 先根据 filter 筛选帖子
+        let filteredPosts;
         if (filter === 'all') {
-            return posts.filter(p => p.visibility === 'public');
+            filteredPosts = posts.filter(p => p.visibility === 'public');
         } else if (filter === 'following') {
             if (!currentUser) return [];
             const following = currentUser.following || [];
-            return posts.filter(p => 
+            filteredPosts = posts.filter(p => 
                 (p.visibility === 'public' || p.visibility === 'friends') &&
                 (following.includes(p.authorId) || String(p.authorId) === String(currentUser.id))
             );
         } else if (filter === 'mine') {
             if (!currentUser) return [];
-            return posts.filter(p => String(p.authorId) === String(currentUser.id));
+            filteredPosts = posts.filter(p => String(p.authorId) === String(currentUser.id));
+        } else {
+            filteredPosts = posts;
         }
-        return posts;
+        
+        // 如果有 tags 参数，进一步筛选包含所有标签的帖子
+        if (params.tags && Array.isArray(params.tags) && params.tags.length > 0) {
+            filteredPosts = filteredPosts.filter(post => {
+                const postTags = post.tags || [];
+                // 检查帖子是否包含所有指定标签
+                return params.tags.every(tag => postTags.includes(tag));
+            });
+        }
+        
+        return filteredPosts;
     },
     getUserPosts: (userId) => {
         const posts = DB._get(DB_KEYS.POSTS);

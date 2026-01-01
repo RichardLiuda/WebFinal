@@ -127,7 +127,7 @@
                         <md-checkbox id="remember" touch-target="wrapper"></md-checkbox>
                         <span class="md-typescale-label-large">Remember me</span>
                     </label>
-                    <md-text-button type="button" onclick="alert('Please contact admin to reset your password.')">Forgot?</md-text-button>
+                    <md-text-button type="button" onclick="document.getElementById('forgot-password-dialog').show()">Forgot?</md-text-button>
                 </div>
 
                 <md-filled-button id="btn-login" class="submit-btn" type="button">
@@ -169,6 +169,26 @@
             </md-text-button>
         </div>
     </div>
+
+    <!-- Forgot Password Dialog -->
+    <md-dialog id="forgot-password-dialog">
+        <div slot="headline">Reset Password</div>
+        <form slot="content" style="display: flex; flex-direction: column; gap: 20px; margin-top: 16px;">
+            <div class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin-bottom: 8px;">
+                Enter your student ID to receive a password reset link.
+            </div>
+            <md-outlined-text-field id="forgot-id" label="Student ID (10 Digits)" type="number" required>
+                <md-icon slot="leading-icon">badge</md-icon>
+            </md-outlined-text-field>
+            <md-outlined-text-field id="forgot-email" label="Email Address" type="email" required>
+                <md-icon slot="leading-icon">email</md-icon>
+            </md-outlined-text-field>
+        </form>
+        <div slot="actions">
+            <md-text-button form="forgot-password-dialog" value="cancel" onclick="document.getElementById('forgot-password-dialog').close()">Cancel</md-text-button>
+            <md-filled-button id="forgot-submit-btn" onclick="alert('Password reset link would be sent to your email.')">Submit</md-filled-button>
+        </div>
+    </md-dialog>
 
     <script src="../js/LocalStorage.js"></script>
     <script src="../js/auth.js"></script>

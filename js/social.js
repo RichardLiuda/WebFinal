@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // 标签筛选状态管理
+  const state = {
+    filterTags: [],
+  };
+  
   // 从URL参数获取要查看的用户ID
   const urlParams = new URLSearchParams(window.location.search);
   const profileUserId = urlParams.get('id');
@@ -40,12 +45,142 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFollowButton();
     setupTabs();
     setupProfileMoreButton();
+    initProfileTagFilter();
+    initUserSearch();
     
     // 如果是自己的个人资料，隐藏关注和消息按钮
     if (isOwnProfile) {
       followBtn.style.display = 'none';
       messageBtn.style.display = 'none';
     }
+  }
+  
+  // 用户搜索功能
+  function initUserSearch() {
+    const userSearchInput = document.getElementById('user-search-input');
+    const userSearchBtn = document.getElementById('user-search-btn');
+    const searchResultCount = document.getElementById('search-result-count');
+    
+    // 搜索函数
+    function searchUsers() {
+      const searchQuery = userSearchInput.value.trim().toLowerCase();
+      const activeTab = document.querySelector('#profile-tabs md-primary-tab[active]');
+      const tabType = activeTab.getAttribute('data-tab');
+      
+      if (tabType === 'following') {
+        loadFollowingList(searchQuery);
+      } else if (tabType === 'followers') {
+        loadFollowersList(searchQuery);
+      }
+      
+      // 更新搜索结果数量显示
+      const visibleUsers = document.querySelectorAll(`${tabType === 'following' ? '#following-container' : '#followers-container'} .user-item`);
+      const count = visibleUsers.length;
+      searchResultCount.textContent = count > 0 ? `${count} result${count !== 1 ? 's' : ''}` : 'No results';
+    }
+    
+    // 搜索按钮点击事件
+    if (userSearchBtn) {
+      userSearchBtn.addEventListener('click', searchUsers);
+    }
+    
+    // 输入框回车事件
+    if (userSearchInput) {
+      userSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          searchUsers();
+        }
+      });
+    }
+  }
+  
+  // 标签筛选功能
+  function initProfileTagFilter() {
+    const tagInput = document.getElementById('tag-input');
+    const addTagBtn = document.getElementById('add-tag-btn');
+    const tagsList = document.getElementById('tags-list');
+    const clearTagsBtn = document.getElementById('clear-tags-btn');
+
+    // 渲染当前标签列表
+    function renderTags() {
+      tagsList.innerHTML = '';
+      state.filterTags.forEach((tag, index) => {
+        const tagElement = document.createElement('div');
+        tagElement.className = 'filter-tag-pill';
+        tagElement.innerHTML = `
+          <span>${tag}</span>
+          <md-icon-button class="remove-tag-btn" aria-label="Remove tag" data-index="${index}">
+            <md-icon>close</md-icon>
+          </md-icon-button>
+        `;
+        tagsList.appendChild(tagElement);
+      });
+    }
+
+    // 添加标签
+    function addTag(tag) {
+      tag = tag.trim().toLowerCase();
+      if (!tag) return;
+      tag = "#" + tag;
+      if (!state.filterTags.includes(tag)) {
+        state.filterTags.push(tag);
+        renderTags();
+        loadProfilePosts();
+        tagInput.value = '';
+      }
+    }
+
+    // 删除标签
+    function removeTag(index) {
+      state.filterTags.splice(index, 1);
+      renderTags();
+      loadProfilePosts();
+    }
+
+    // 清空所有标签
+    function clearAllTags() {
+      state.filterTags = [];
+      renderTags();
+      loadProfilePosts();
+    }
+
+    // 添加标签按钮事件
+    if (addTagBtn) {
+      addTagBtn.addEventListener('click', () => {
+        const tag = tagInput.value.trim();
+        addTag(tag);
+      });
+    }
+
+    // 输入框回车事件
+    if (tagInput) {
+      tagInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const tag = tagInput.value.trim();
+          addTag(tag);
+        }
+      });
+    }
+
+    // 清空所有标签按钮事件
+    if (clearTagsBtn) {
+      clearTagsBtn.addEventListener('click', clearAllTags);
+    }
+
+    // 标签删除按钮事件委托
+    if (tagsList) {
+      tagsList.addEventListener('click', (e) => {
+        const removeBtn = e.target.closest('.remove-tag-btn');
+        if (removeBtn) {
+          e.stopPropagation();
+          const index = parseInt(removeBtn.dataset.index, 10);
+          removeTag(index);
+        }
+      });
+    }
+
+    // 初始渲染标签列表
+    renderTags();
   }
 
   // 加载个人资料数据
@@ -93,23 +228,29 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupTabs() {
     const tabs = profileTabs.querySelectorAll('md-primary-tab');
     
-    // 如果不是自己的个人资料，隐藏Following和Followers标签页
+    // 当不是自己的个人资料页面时，不显示following和followers标签页
     if (!isOwnProfile) {
-      const tabFollowing = document.getElementById('tab-following');
-      const tabFollowers = document.getElementById('tab-followers');
+      const tabFollowing = document.querySelector('md-primary-tab[data-tab="following"]');
+      const tabFollowers = document.querySelector('md-primary-tab[data-tab="followers"]');
       if (tabFollowing) tabFollowing.style.display = 'none';
       if (tabFollowers) tabFollowers.style.display = 'none';
+    }
+    
+    // 切换左侧菜单（标签筛选或用户搜索）
+    function switchSideMenu(tabType) {
+      const tagsFilterCard = document.getElementById('tags-filter-card');
+      const userSearchCard = document.getElementById('user-search-card');
       
-      // 确保只显示Posts面板
-      panelFollowing.hidden = true;
-      panelFollowers.hidden = true;
-      panelPosts.hidden = false;
+      if (tabType === 'posts') {
+        tagsFilterCard.style.display = 'flex';
+        userSearchCard.style.display = 'none';
+      } else if (tabType === 'following' || tabType === 'followers') {
+        tagsFilterCard.style.display = 'none';
+        userSearchCard.style.display = 'flex';
+      }
     }
     
     tabs.forEach(tab => {
-      // 如果标签页被隐藏，跳过事件监听
-      if (tab.style.display === 'none') return;
-      
       tab.addEventListener('click', () => {
         // 更新标签页状态
         tabs.forEach(t => t.removeAttribute('active'));
@@ -121,10 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
         panelFollowing.hidden = tabType !== 'following';
         panelFollowers.hidden = tabType !== 'followers';
 
+        // 切换左侧菜单
+        switchSideMenu(tabType);
+
         // 加载对应的数据
-        if (tabType === 'following' && followingContainer.innerHTML === '') {
+        if (tabType === 'following') {
           loadFollowingList();
-        } else if (tabType === 'followers' && followersContainer.innerHTML === '') {
+        } else if (tabType === 'followers') {
           loadFollowersList();
         }
       });
@@ -217,8 +361,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 加载个人资料帖子
   function loadProfilePosts() {
-    const posts = window.DB.getUserPosts(displayUserId);
+    let posts = window.DB.getUserPosts(displayUserId);
     postsContainer.innerHTML = '';
+
+    // 应用标签筛选
+    if (state.filterTags.length > 0) {
+      posts = posts.filter(post => {
+        // 确保帖子有标签，并且包含所有筛选标签
+        const postTags = post.tags || [];
+        return state.filterTags.every(tag => postTags.includes(tag));
+      });
+    }
 
     if (posts.length === 0) {
       postsContainer.innerHTML = '<div class="empty-state">No posts yet.</div>';
@@ -491,39 +644,69 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 加载关注列表
-  function loadFollowingList() {
-    const user = window.DB.getUserById(profileUserId);
+  function loadFollowingList(searchQuery = '') {
+    const user = window.DB.getUserById(displayUserId);
     if (!user || !user.following || user.following.length === 0) {
       followingContainer.innerHTML = '<div class="empty-state">Not following anyone yet.</div>';
       return;
     }
 
     followingContainer.innerHTML = '';
+    let hasResults = false;
+    
     user.following.forEach(followId => {
       const followedUser = window.DB.getUserById(followId);
       if (followedUser) {
-        const userElement = createUserElement(followedUser);
-        followingContainer.appendChild(userElement);
+        // 检查是否匹配搜索查询
+        const matchesSearch = !searchQuery || 
+          followedUser.id.toLowerCase().includes(searchQuery) || 
+          (followedUser.nickname && followedUser.nickname.toLowerCase().includes(searchQuery));
+          
+        if (matchesSearch) {
+          const userElement = createUserElement(followedUser);
+          followingContainer.appendChild(userElement);
+          hasResults = true;
+        }
       }
     });
+    
+    // 如果没有匹配的结果，显示空状态
+    if (!hasResults) {
+      followingContainer.innerHTML = '<div class="empty-state">No matching users found.</div>';
+    }
   }
 
   // 加载粉丝列表
-  function loadFollowersList() {
-    const user = window.DB.getUserById(profileUserId);
+  function loadFollowersList(searchQuery = '') {
+    const user = window.DB.getUserById(displayUserId);
     if (!user || !user.followers || user.followers.length === 0) {
       followersContainer.innerHTML = '<div class="empty-state">No followers yet.</div>';
       return;
     }
 
     followersContainer.innerHTML = '';
+    let hasResults = false;
+    
     user.followers.forEach(followerId => {
       const followerUser = window.DB.getUserById(followerId);
       if (followerUser) {
-        const userElement = createUserElement(followerUser);
-        followersContainer.appendChild(userElement);
+        // 检查是否匹配搜索查询
+        const matchesSearch = !searchQuery || 
+          followerUser.id.toLowerCase().includes(searchQuery) || 
+          (followerUser.nickname && followerUser.nickname.toLowerCase().includes(searchQuery));
+          
+        if (matchesSearch) {
+          const userElement = createUserElement(followerUser);
+          followersContainer.appendChild(userElement);
+          hasResults = true;
+        }
       }
     });
+    
+    // 如果没有匹配的结果，显示空状态
+    if (!hasResults) {
+      followersContainer.innerHTML = '<div class="empty-state">No matching users found.</div>';
+    }
   }
 
   // 创建用户元素

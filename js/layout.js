@@ -2,6 +2,7 @@
   const state = {
     filter: "all",
     route: "home",
+    filterTags: [],
   };
 
   const tabs = document.getElementById("feed-tabs");
@@ -56,10 +57,10 @@
     ];
   };
 
-  const getFeedData = (filter) => {
+  const getFeedData = (filter, params = {}) => {
     if (window.DB && typeof window.DB.getFeed === "function") {
       const mapped = filter === "following" ? "following" : "all";
-      const data = window.DB.getFeed(mapped);
+      const data = window.DB.getFeed(mapped, params);
       return Array.isArray(data) ? data : [];
     }
     return mockFeed();
@@ -84,7 +85,8 @@
 
   const renderFeed = () => {
     const panel = getActivePanel();
-    const posts = getFeedData(state.filter).map(normalizePost);
+    const params = state.filterTags.length > 0 ? { tags: state.filterTags } : {};
+    const posts = getFeedData(state.filter, params).map(normalizePost);
 
     panel.list.innerHTML = "";
 
@@ -354,6 +356,95 @@
   }
 
   // 导出函数到全局，方便其他地方调用
+  // 标签筛选功能
+  function initTagFilter() {
+    const tagInput = document.getElementById('tag-input');
+    const addTagBtn = document.getElementById('add-tag-btn');
+    const tagsList = document.getElementById('tags-list');
+    const clearTagsBtn = document.getElementById('clear-tags-btn');
+
+    // 渲染当前标签列表
+    function renderTags() {
+      tagsList.innerHTML = '';
+      state.filterTags.forEach((tag, index) => {
+        const tagElement = document.createElement('div');
+        tagElement.className = 'filter-tag-pill';
+        tagElement.innerHTML = `
+          <span>${tag}</span>
+          <md-icon-button class="remove-tag-btn" aria-label="Remove tag" data-index="${index}">
+            <md-icon>close</md-icon>
+          </md-icon-button>
+        `;
+        tagsList.appendChild(tagElement);
+      });
+    }
+
+    // 添加标签
+    function addTag(tag) {
+      tag = tag.trim().toLowerCase();
+      if (!tag) return;
+      tag = "#" + tag;
+      if (!state.filterTags.includes(tag)) {
+        state.filterTags.push(tag);
+        renderTags();
+        renderFeed();
+        tagInput.value = '';
+      }
+    }
+
+    // 删除标签
+    function removeTag(index) {
+      state.filterTags.splice(index, 1);
+      renderTags();
+      renderFeed();
+    }
+
+    // 清空所有标签
+    function clearAllTags() {
+      state.filterTags = [];
+      renderTags();
+      renderFeed();
+    }
+
+    // 添加标签按钮事件
+    if (addTagBtn) {
+      addTagBtn.addEventListener('click', () => {
+        const tag = tagInput.value.trim();
+        addTag(tag);
+      });
+    }
+
+    // 输入框回车事件
+    if (tagInput) {
+      tagInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const tag = tagInput.value.trim();
+          addTag(tag);
+        }
+      });
+    }
+
+    // 清空所有标签按钮事件
+    if (clearTagsBtn) {
+      clearTagsBtn.addEventListener('click', clearAllTags);
+    }
+
+    // 标签删除按钮事件委托
+    if (tagsList) {
+      tagsList.addEventListener('click', (e) => {
+        const removeBtn = e.target.closest('.remove-tag-btn');
+        if (removeBtn) {
+          e.stopPropagation();
+          const index = parseInt(removeBtn.dataset.index, 10);
+          removeTag(index);
+        }
+      });
+    }
+
+    // 初始渲染标签列表
+    renderTags();
+  }
+
   window.openEditPostDialog = openEditPostDialog;
   window.deletePost = deletePost;
 
@@ -362,4 +453,7 @@
       setActiveFilter(state.filter);
     });
   }
+
+  // 初始化标签筛选功能
+  initTagFilter();
 })();
