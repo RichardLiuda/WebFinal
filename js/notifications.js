@@ -17,6 +17,9 @@ async function initNotificationsPage() {
         return;
     }
     
+    // Update UI with user information
+    updateUI();
+    
     // Load notifications for all tabs
     loadNotifications('like');
     loadNotifications('comment');
@@ -24,6 +27,46 @@ async function initNotificationsPage() {
     
     // Set up event listeners
     setupEventListeners();
+}
+
+// Update UI with user information
+function updateUI() {
+    const user = currentUser;
+    const avatarContainer = document.getElementById('user-avatar-container');
+    const accountMenu = document.getElementById('account-menu');
+    const menuAdmin = document.getElementById('menu-admin');
+    
+    // Display Avatar and attach Menu Trigger
+    avatarContainer.innerHTML = `
+        <img id="avatar-trigger" src="${user.avatar}" alt="User Profile">
+    `;
+    
+    // 判断角色是否为管理员
+    if (user.role === "admin") {
+        menuAdmin.style.display = "flex"; // 显示管理选项
+    } else {
+        menuAdmin.style.display = "none";
+    }
+    
+    document
+        .getElementById("avatar-trigger")
+        .addEventListener("click", () => {
+            accountMenu.open = !accountMenu.open;
+        });
+    
+    // Add menu item event listeners
+    document.getElementById('menu-profile').addEventListener('click', () => {
+        window.location.href = 'profile.html';
+    });
+    
+    document.getElementById('menu-logout').addEventListener('click', () => {
+        window.DB.logout();
+        location.reload();
+    });
+    
+    document.getElementById('menu-admin').addEventListener('click', () => {
+        window.location.href = 'admin.html';
+    });
 }
 
 // Load notifications from database by type
