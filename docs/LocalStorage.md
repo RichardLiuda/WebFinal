@@ -5,6 +5,8 @@
 在所有 HTML 页面底部引入：
 ```html
 <script src="../js/LocalStorage.js"></script>
+<!-- 引入 ThemeEngine 实现动态主题 -->
+<script src="../js/ThemeEngine.js"></script>
 ```
 引入后，全局可以直接使用 `DB`、`Utils`、`ThemeEngine` 对象。
 
@@ -26,7 +28,7 @@
     posts: 3
   },
   settings: {               // 设置
-    themeColor: "#6750a4",
+    themeMode: "system",    // 'light' | 'dark' | 'system'
     visibility: "public"
   },
   role: "user",             // 角色: user / admin
@@ -121,6 +123,13 @@
 | `DB.getUnreadNotificationCount(userId)` | 获取未读通知数 | `const count = DB.getUnread...` |
 | `DB.markAsRead(notifId)` | 标记单条为已读 | `DB.markAsRead(1700...)` |
 | `DB.markAllAsRead(userId)` | 标记所有为已读 | `DB.markAllAsRead('20230001')` |
+
+### 动态主题 (ThemeEngine)
+
+| 方法 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `ThemeEngine.setTheme(mode)` | 设置主题 | `ThemeEngine.setTheme('dark')` (支持 light/dark/system) |
+| `ThemeEngine.toggle()` | 切换主题 | `ThemeEngine.toggle()` (Light <-> Dark) |
 
 ### 全局工具 (Member E)
 

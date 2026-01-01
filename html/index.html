@@ -84,6 +84,11 @@
             <md-icon slot="start">person</md-icon>
           </md-menu-item>
 
+          <md-menu-item id="menu-theme">
+            <div slot="headline">Toggle Theme</div>
+            <md-icon slot="start">brightness_6</md-icon>
+          </md-menu-item>
+          
           <md-menu-item id="menu-logout">
             <div slot="headline">Logout</div>
             <md-icon slot="start">logout</md-icon>
@@ -300,6 +305,7 @@
 
     <!-- Base Scripts -->
     <script src="../js/LocalStorage.js"></script>
+    <script src="../js/ThemeEngine.js"></script>
     <script src="../js/layout.js"></script>
     <script src="../js/post_editor.js"></script>
     <script src="../js/ThemeEngine.js"></script>
@@ -387,10 +393,16 @@
             window.location.href = "profile.html";
           });
 
-        document.getElementById("menu-logout").addEventListener("click", () => {
-          window.DB.logout();
-          location.reload();
-        });
+          document.getElementById('menu-theme').addEventListener('click', () => {
+              if (window.ThemeEngine) {
+                  window.ThemeEngine.toggle();
+              }
+          });
+
+          document.getElementById('menu-logout').addEventListener('click', () => {
+              window.DB.logout();
+              location.reload();
+          });
 
         // 4. Silent Permission Guard for Bottom Navigation
         navProfile.addEventListener("click", (e) => {

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member E - Integrated Test Suite</title>
+    <!-- 引入项目全局样式以便测试 ThemeEngine -->
+    <link rel="stylesheet" href="../../css/global.css">
+    
+    <style>
+        body { font-family: monospace; padding: 20px; transition: background 0.3s, color 0.3s; }
+        .section { margin-bottom: 30px; border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
+        .log { margin: 2px 0; padding: 4px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #e2e3e5; color: #383d41; }
+        
+        /* Theme Test Blocks */
+        .theme-box {
+            width: 100px; height: 50px; display: inline-flex; 
+            align-items: center; justify-content: center;
+            border: 1px solid var(--md-sys-color-outline);
+            margin-right: 10px;
+        }
+        .primary { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+        .surface { background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface); }
+    </style>
+</head>
+<body>
+    <h1>Member E - Feature Verification</h1>
+    
+    <!-- 1. Theme Engine Test UI -->
+    <div class="section" id="theme-section">
+        <h2>1. ThemeEngine Test</h2>
+        <p>Current Mode: <strong id="current-theme-mode">unknown</strong></p>
+        <div style="margin-bottom: 10px;">
+            <button onclick="testTheme('light')">Set Light</button>
+            <button onclick="testTheme('dark')">Set Dark</button>
+            <button onclick="testTheme('system')">Set System</button>
+            <button onclick="window.ThemeEngine.toggle()">Toggle</button>
+        </div>
+        <div class="theme-preview">
+            <div class="theme-box primary">Primary Color</div>
+            <div class="theme-box surface">Surface Color</div>
+        </div>
+    </div>
+
+    <!-- 2. LocalStorage Logic Test -->
+    <div class="section">
+        <h2>2. LocalStorage Logic Test</h2>
+        <button onclick="runLogicTests()">Run Logic Tests</button>
+        <div id="console" style="margin-top: 10px; max-height: 400px; overflow-y: auto; background: #eee; padding: 10px;"></div>
+    </div>
+
+    <!-- 引入核心库 -->
+    <script src="../../js/LocalStorage.js"></script>
+    <script src="../../js/ThemeEngine.js"></script>
+
+    <script>
+        // --- Helper: Logger ---
+        const consoleDiv = document.getElementById('console');
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${type.toUpperCase()}] ${msg}`;
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        function assert(condition, msg) {
+            if (condition) log(`PASS: ${msg}`, 'success');
+            else log(`FAIL: ${msg}`, 'error');
+        }
+
+        // --- 1. Theme Tests ---
+        function testTheme(mode) {
+            window.ThemeEngine.setTheme(mode);
+            updateThemeStatus();
+        }
+        
+        function updateThemeStatus() {
+            const mode = localStorage.getItem('m3_theme_mode') || 'system';
+            document.getElementById('current-theme-mode').textContent = mode;
+        }
+        
+        // Hook for ThemeEngine updates
+        const originalSetTheme = window.ThemeEngine.setTheme;
+        window.ThemeEngine.setTheme = function(mode, save) {
+            originalSetTheme(mode, save);
+            updateThemeStatus();
+        };
+        updateThemeStatus();
+
+        // --- 2. Logic Tests (LocalStorage) ---
+        async function runLogicTests() {
+            consoleDiv.innerHTML = '';
+            log("Starting Logic Tests...");
+            
+            try {
+                // Setup
+                localStorage.clear();
+                // Re-init DB (since clear wiped it, but DB object is already loaded)
+                // We manually re-inject admin or rely on register
+                
+                // Test 1: User Registration & Login
+                log("--- Auth Tests ---");
+                const userA = { id: 'u001', password: '123', nickname: 'User A', bio: 'Bio A' };
+                const userB = { id: 'u002', password: '123', nickname: 'User B', bio: 'Bio B' };
+                
+                assert(DB.register(userA) === true, "Register User A");
+                assert(DB.register(userB) === true, "Register User B");
+                assert(DB.login('u001', '123') === true, "Login User A");
+                assert(DB.ctx().id === 'u001', "Session check");
+
+                // Test 2: Posts & Feed
+                log("--- Post Tests ---");
+                DB.createPost("Post 1 by A", [], "public", ["#tag1"]);
+                DB.createPost("Post 2 by A", [], "public", ["#tag2"]);
+                
+                let feed = DB.getFeed('all');
+                assert(feed.length === 2, "Feed has 2 posts");
+                assert(feed[0].author.nickname === 'User A', "Post author enriched");
+
+                // Test 3: Interactions & Notifications
+                log("--- Interaction Tests ---");
+                const post = feed[0];
+                
+                // Switch to B
+                DB.login('u002', '123');
+                
+                // B follows A
+                assert(DB.toggleFollow('u001') === true, "B follows A");
+                assert(DB.isFollowing('u001') === true, "B is following A check");
+                
+                // B likes Post 1
+                DB.toggleLike(post.id);
+                
+                // B comments on Post 1
+                DB.comment(post.id, "Nice post!");
+
+                // Switch back to A to check notifications
+                DB.login('u001', '123');
+                const notifs = DB.getNotifications('u001');
+                assert(notifs.length === 3, "A received 3 notifications (Follow, Like, Comment)");
+                
+                const likeNotif = notifs.find(n => n.type === 'like');
+                assert(likeNotif && likeNotif.sourceId === 'u002', "Like notification correct");
+
+                // Test 4: Search (New)
+                log("--- Search Tests ---");
+                const searchUsers = DB.searchUsers('User B');
+                assert(searchUsers.length === 1 && searchUsers[0].id === 'u002', "Search User B");
+                
+                const searchPosts = DB.searchPosts('#tag1');
+                assert(searchPosts.length === 1 && searchPosts[0].content.includes('Post 1'), "Search Post by Tag");
+
+                // Test 5: Theme Settings Persistence
+                log("--- Theme Settings Persistence ---");
+                ThemeEngine.setTheme('dark');
+                const me = DB.getUser('u001');
+                assert(me.settings.themeMode === 'dark', "Theme preference saved to User DB");
+
+                log("ALL TESTS COMPLETED", "success");
+
+            } catch (e) {
+                log(`ERROR: ${e.message}`, 'error');
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>
