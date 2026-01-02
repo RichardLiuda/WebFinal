@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const escapeHtml = (value) => {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  };
+
   // 标签筛选状态管理
   const state = {
     filterTags: [],
@@ -400,16 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const isLiked = currentUser && post.likes.includes(currentUser.id);
     const likeIcon = isLiked ? 'favorite' : 'favorite_border';
 
-    // 转义HTML内容
-    const escapeHtml = (value) => {
-      return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    };
-
     // 格式化时间
     const formatTime = (isoString) => {
       if (window.Utils && typeof window.Utils.timeAgo === 'function') {
@@ -423,8 +422,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const avatarHtml = (author && author.avatar) 
-      ? `<img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;">` 
-      : `<div class="brand-mark" style="width: 32px; height: 32px; font-size: 14px;">${String(author.id).substring(0,2)}</div>`;
+      ? `<div class="author-avatar" data-author-id="${post.authorId}" style="cursor: pointer;"><img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;"></div>` 
+      : `<div class="author-avatar brand-mark" data-author-id="${post.authorId}" style="cursor: pointer; width: 32px; height: 32px; font-size: 14px;">${String(author.id).substring(0,2)}</div>`;
 
     const imagesMarkup = (post.images || []).map(img => `<img src="${escapeHtml(img)}" style="border-radius: 12px; margin-top: 8px; max-height: 300px; object-fit: cover;">`).join('');
 
@@ -455,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <md-icon slot="icon">chat_bubble_outline</md-icon>
             ${post.comments.length}
           </md-outlined-button>
-          <md-text-button type="button">Share</md-text-button>
+          <md-text-button type="button" style="display: none;">Share</md-text-button>
         </div>
       </div>
     `;
@@ -463,17 +462,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // 添加事件监听器
     const likeBtn = card.querySelector('.btn-like');
     const commentBtn = card.querySelector('.btn-comment');
+    const authorAvatar = card.querySelector('.author-avatar');
     const moreBtn = card.querySelector('.post-more-btn');
     const moreMenu = card.querySelector('.post-more-menu');
     const editBtn = card.querySelector('.post-edit-btn');
     const deleteBtn = card.querySelector('.post-delete-btn');
 
     if (likeBtn) {
-      likeBtn.addEventListener('click', () => toggleLike(post.id, likeBtn));
+      likeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const postId = Number(likeBtn.dataset.id);
+        if (window.DB) {
+            if (!window.DB.ctx()) { alert('Please login'); return; }
+            window.DB.toggleLike(postId);
+            // 刷新界面以确保所有相关数据都得到更新
+            loadProfilePosts();
+        }
+        return;
+      });
     }
 
-    if (commentBtn) {
-      commentBtn.addEventListener('click', () => openCommentDialog(post.id));
+    if (authorAvatar) {
+      authorAvatar.addEventListener('click', (e) => {
+        e.stopPropagation(); // 阻止事件冒泡，避免触发卡片点击事件
+        const authorId = authorAvatar.dataset.authorId;
+        window.location.href = `profile.html?id=${authorId}`;
+      });
     }
 
     // 更多选项按钮事件
@@ -507,93 +521,19 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    return card;
-  }
-
-  // 切换点赞状态
-  function toggleLike(postId, likeBtn) {
-    const isLiked = window.DB.toggleLike(postId);
-    const likeCount = likeBtn.querySelector('span');
-    const likeIcon = likeBtn.querySelector('md-icon');
-
-    if (isLiked) {
-      likeBtn.classList.add('liked');
-      likeIcon.textContent = 'favorite';
-      likeCount.textContent = parseInt(likeCount.textContent) + 1;
-    } else {
-      likeBtn.classList.remove('liked');
-      likeIcon.textContent = 'favorite_border';
-      likeCount.textContent = parseInt(likeCount.textContent) - 1;
+    if (commentBtn) {
+      commentBtn.addEventListener('click', () => PostEditor.openDetail(post.id));
     }
-  }
 
-  // 打开评论对话框
-  function openCommentDialog(postId) {
-    const dialog = document.getElementById('post-detail-dialog');
-    const post = window.DB.getPostById(postId);
-    const detailPostContainer = document.getElementById('detail-post-container');
-
-    if (!post) return;
-
-    // 克隆帖子元素到对话框
-    const postElement = createPostElement(post);
-    detailPostContainer.innerHTML = '';
-    detailPostContainer.appendChild(postElement);
-
-    // 加载评论
-    loadComments(postId);
-
-    // 打开对话框
-    dialog.show();
-
-    // 设置评论提交
-    const newCommentInput = document.getElementById('new-comment-input');
-    const sendCommentBtn = document.getElementById('send-comment-btn');
-
-    sendCommentBtn.onclick = () => {
-      const content = newCommentInput.value.trim();
-      if (content) {
-        window.DB.comment(postId, content);
-        loadComments(postId);
-        newCommentInput.value = '';
-        // 更新原帖子的评论数
-        const originalPost = document.querySelector(`[data-post-id="${postId}"]`);
-        if (originalPost) {
-          const commentCount = originalPost.querySelector('.action-btn[data-action="comment"] span');
-          if (commentCount) {
-            commentCount.textContent = parseInt(commentCount.textContent) + 1;
-          }
-        }
+    // 帖子卡片点击事件 - 打开详情对话框
+    card.addEventListener('click', (e) => {
+      // 忽略按钮点击，避免与点赞/评论/更多按钮冲突
+      if (!e.target.closest('button') && !e.target.closest('md-icon-button') && !e.target.closest('md-outlined-button')) {
+        PostEditor.openDetail(post.id);
       }
-    };
-  }
-
-  // 加载评论
-  function loadComments(postId) {
-    const commentsList = document.getElementById('comments-list');
-    const post = window.DB.getPostById(postId);
-
-    if (!post) return;
-
-    commentsList.innerHTML = '';
-    post.comments.forEach(comment => {
-      const commentElement = document.createElement('div');
-      const author = window.DB.getUserById(comment.authorId);
-
-      commentElement.innerHTML = `
-        <div class="comment">
-          <div class="comment-author">
-            <img src="${author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author.nickname || author.id}`}" alt="${author.nickname || author.id}" class="comment-avatar">
-            <div class="comment-info">
-              <div class="comment-author-name">${author.nickname || author.id}</div>
-              <div class="comment-time">${window.Utils.timeAgo(comment.timestamp)}</div>
-            </div>
-          </div>
-          <div class="comment-content">${window.Utils.sanitize(comment.content)}</div>
-        </div>
-      `;
-      commentsList.appendChild(commentElement);
     });
+
+    return card;
   }
 
   // 删除帖子

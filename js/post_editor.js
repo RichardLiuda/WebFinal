@@ -128,6 +128,15 @@ const PostEditor = {
     container.innerHTML = PostEditor.createCardHTML(post, false); // false = not interactive (no buttons needed if we have specific actions)
     // Actually we might want buttons there too.
 
+    // Add click event listener for author avatar in dialog
+    const authorAvatar = container.querySelector('.author-avatar');
+    if (authorAvatar) {
+      authorAvatar.addEventListener('click', () => {
+        const authorId = authorAvatar.dataset.authorId;
+        window.location.href = `profile.html?id=${authorId}`;
+      });
+    }
+
     // Render Comments
     PostEditor.renderComments(postId);
 
@@ -146,8 +155,8 @@ const PostEditor = {
         const author = window.DB && window.DB.getUserById ? window.DB.getUserById(c.authorId) : null;
         const authorName = author ? (author.nickname || author.id) : c.authorId;
         const avatarHtml = (author && author.avatar) 
-          ? `<img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(authorName)}" style="width:24px; height:24px; border-radius:12px; object-fit:cover; margin-right:8px;">` 
-          : `<div class="brand-mark" style="width:24px; height:24px; font-size:12px; margin-right:8px;">${String(author ? author.id : c.authorId).substring(0,2)}</div>`;
+          ? `<div class="author-avatar" style="cursor: pointer;" data-author-id="${c.authorId}"><img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(authorName)}" style="width:24px; height:24px; border-radius:12px; object-fit:cover; margin-right:8px;"></div>` 
+          : `<div class="author-avatar brand-mark" style="cursor: pointer; width:24px; height:24px; font-size:12px; margin-right:8px;" data-author-id="${c.authorId}">${String(author ? author.id : c.authorId).substring(0,2)}</div>`;
         
         return `
             <div class="comment-item" style="background: var(--md-sys-color-surface-container-low); padding: 8px; border-radius: 8px; display:flex; align-items:flex-start;">
@@ -159,6 +168,14 @@ const PostEditor = {
             </div>
         `;
     }).join('');
+    
+    // Add click event listeners for comment author avatars
+    list.querySelectorAll('.author-avatar').forEach(avatar => {
+      avatar.addEventListener('click', () => {
+        const authorId = avatar.dataset.authorId;
+        window.location.href = `profile.html?id=${authorId}`;
+      });
+    });
   },
 
   // Helper to generate HTML (Matches layout.js structure but adds IDs)
@@ -179,8 +196,8 @@ const PostEditor = {
 
     const author = window.DB && window.DB.getUserById ? window.DB.getUserById(post.authorId) : null;
     const avatarHtml = (author && author.avatar) 
-      ? `<img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;">` 
-      : `<div class="brand-mark" style="width: 32px; height: 32px; font-size: 14px;">${String(author ? author.id : post.authorId).substring(0,2)}</div>`;
+      ? `<div class="author-avatar" style="cursor: pointer;" data-author-id="${post.authorId}"><img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;"></div>` 
+      : `<div class="author-avatar brand-mark" style="cursor: pointer; width: 32px; height: 32px; font-size: 14px;" data-author-id="${post.authorId}">${String(author ? author.id : post.authorId).substring(0,2)}</div>`;
 
     return `
         <div class="post-header">
