@@ -402,18 +402,12 @@
           });
 
           document.getElementById('btn-theme-toggle').addEventListener('click', () => {
-              if (window.ThemeEngine) {
-                  window.ThemeEngine.toggle();
-              }
-          });
+            if (window.ThemeEngine) {
+                window.ThemeEngine.toggle();
+            }
+        });
 
-          document.getElementById('btn-theme-toggle').addEventListener('click', () => {
-              if (window.ThemeEngine) {
-                  window.ThemeEngine.toggle();
-              }
-          });
-
-          document.getElementById('menu-logout').addEventListener('click', () => {
+        document.getElementById('menu-logout').addEventListener('click', () => {
               window.DB.logout();
               location.reload();
           });
