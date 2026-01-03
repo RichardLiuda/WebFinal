@@ -85,6 +85,7 @@
 
   const renderFeed = () => {
     const panel = getActivePanel();
+    if (!panel || !panel.list) return;
     const params = state.filterTags.length > 0 ? { tags: state.filterTags } : {};
     const posts = getFeedData(state.filter, params).map(normalizePost);
 
@@ -265,7 +266,9 @@
     });
 
     Object.entries(panelMap).forEach(([key, panel]) => {
-      panel.panel.hidden = key !== filter;
+      if (panel.panel) {
+        panel.panel.hidden = key !== filter;
+      }
     });
 
     renderFeed();
@@ -306,6 +309,16 @@
 
   if (window.DB && typeof window.DB.on === "function") {
     window.DB.on("db:update", () => renderFeed());
+  }
+
+  // Auto-detect route from URL
+  const path = window.location.pathname;
+  if (path.includes('notifications.html')) {
+    state.route = 'notification';
+  } else if (path.includes('profile.html')) {
+    state.route = 'profile';
+  } else {
+    state.route = 'home';
   }
 
   setActiveFilter(state.filter);

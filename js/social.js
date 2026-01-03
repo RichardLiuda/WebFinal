@@ -295,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const moreBtn = document.getElementById('more-btn');
     const moreMenu = document.getElementById('profile-more-menu');
     const editBtn = document.querySelector('.profile-edit-btn');
+    const settingsBtn = document.querySelector('.profile-settings-btn');
 
     if (moreBtn && moreMenu) {
       // 更多按钮点击事件
@@ -326,7 +327,79 @@ document.addEventListener('DOMContentLoaded', () => {
           editBtn.style.display = 'none';
         }
       }
+
+      // 账户设置按钮点击事件 - 只在自己的资料页面显示和功能
+      if (settingsBtn) {
+        if (isOwnProfile) {
+            settingsBtn.addEventListener('click', () => {
+                moreMenu.style.display = 'none';
+                openAccountSettingsDialog();
+            });
+        } else {
+            // 如果不是自己的资料，隐藏设置按钮
+            settingsBtn.style.display = 'none';
+        }
+      }
     }
+  }
+
+  // 打开账户设置对话框
+  function openAccountSettingsDialog() {
+      const dialog = document.getElementById('account-settings-dialog');
+      if (!dialog) return;
+
+      const colorOptions = document.querySelectorAll('.color-option');
+      const resetBtn = document.getElementById('reset-theme-btn');
+      
+      // Setup color options click
+      colorOptions.forEach(option => {
+          option.onclick = () => {
+              const color = option.dataset.color;
+              if (window.ThemeEngine) {
+                  window.ThemeEngine.setThemeColor(color);
+                  
+                  // Update UI to show selected
+                  colorOptions.forEach(opt => {
+                      opt.style.border = '2px solid transparent';
+                      opt.innerHTML = '';
+                  });
+                  option.style.border = '2px solid var(--md-sys-color-primary)';
+                  option.innerHTML = '<md-icon style="color: white; font-size: 24px;">check</md-icon>';
+                  option.style.display = 'flex';
+                  option.style.alignItems = 'center';
+                  option.style.justifyContent = 'center';
+              }
+          };
+      });
+
+      // Setup reset button
+      if (resetBtn) {
+          resetBtn.onclick = () => {
+              if (window.ThemeEngine) {
+                  window.ThemeEngine.resetThemeColor();
+                   // Clear selection UI
+                   colorOptions.forEach(opt => {
+                      opt.style.border = '2px solid transparent';
+                      opt.innerHTML = '';
+                  });
+              }
+          };
+      }
+      
+      // Highlight current color
+      const currentColor = localStorage.getItem('m3_theme_color');
+      if (currentColor) {
+          const activeOption = Array.from(colorOptions).find(opt => opt.dataset.color.toLowerCase() === currentColor.toLowerCase());
+          if (activeOption) {
+               activeOption.style.border = '2px solid var(--md-sys-color-primary)';
+               activeOption.innerHTML = '<md-icon style="color: white; font-size: 24px;">check</md-icon>';
+               activeOption.style.display = 'flex';
+               activeOption.style.alignItems = 'center';
+               activeOption.style.justifyContent = 'center';
+          }
+      }
+
+      dialog.show();
   }
 
   // 打开个人资料编辑对话框

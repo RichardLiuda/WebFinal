@@ -2,7 +2,7 @@ const DB_KEYS = {
     USERS: 'm3_users',
     POSTS: 'm3_posts',
     CURRENT_USER: 'm3_session',
-    NOTIFICATIONS: 'm3_notifications'
+    NOTIFICATIONS: 'm3_notifications',
 };
 
 const Utils = {
@@ -22,20 +22,6 @@ const Utils = {
     sanitize: (str) => {
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-};
-
-const ThemeEngine = {
-    apply: (hex) => {
-        document.documentElement.style.setProperty('--md-sys-color-primary', hex);
-        document.documentElement.style.setProperty('--md-sys-color-on-primary', '#ffffff');
-        localStorage.setItem('m3_theme_color', hex);
-    },
-    load: () => {
-        const savedColor = localStorage.getItem('m3_theme_color');
-        if (savedColor) {
-            ThemeEngine.apply(savedColor);
-        }
     }
 };
 
@@ -399,7 +385,7 @@ const DB = {
     }
 };
 
-// --- 核心：管理员账号强制注入逻辑 ---
+// --- 初始化 ---
 function initDatabase() {
     let users = DB._get(DB_KEYS.USERS);
     const adminId = '1234567890';
@@ -421,7 +407,6 @@ function initDatabase() {
             },
             settings: {
                 themeColor: '#6750a4',
-                visibility: 'public'
             },
             role: 'admin',
             isBanned: false,
@@ -429,15 +414,12 @@ function initDatabase() {
             followers: []
         };
         users.push(adminUser);
+        DB._set(DB_KEYS.USERS, users);
         console.log("Admin account injected: 1234567890 / admin");
     }
-    
-
 }
 
 initDatabase();
 
 window.DB = DB;
 window.Utils = Utils;
-window.ThemeEngine = ThemeEngine;
-ThemeEngine.load();

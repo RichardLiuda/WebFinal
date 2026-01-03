@@ -31,6 +31,7 @@
       }
     </script>
     <link rel="stylesheet" href="../css/global.css" />
+    <script src="../js/ThemeEngine.js"></script>
     <style>
       /* Member B: Avatar styling and layout consistency */
       #user-avatar-container {
@@ -306,6 +307,19 @@
         </div>
       </div>
       <div class="app-actions">
+        <!-- Persistent Action Buttons -->
+        <md-icon-button aria-label="Search">
+          <md-icon>search</md-icon>
+        </md-icon-button>
+        
+        <md-icon-button aria-label="Notifications">
+          <md-icon>notifications</md-icon>
+        </md-icon-button>
+
+        <md-icon-button id="btn-theme-toggle" aria-label="Toggle Theme">
+          <md-icon>brightness_6</md-icon>
+        </md-icon-button>
+
         <!-- Member B: Avatar Slot & Anchor for Menu -->
         <div id="user-avatar-container"></div>
 
@@ -505,5 +519,18 @@
     <script src="../js/layout.js"></script>
     <script src="../js/notifications.js"></script>
     <script src="../js/post_editor.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Theme Toggle
+        const themeBtn = document.getElementById('btn-theme-toggle');
+        if (themeBtn) {
+          themeBtn.addEventListener('click', () => {
+            if (window.ThemeEngine) {
+              window.ThemeEngine.toggle();
+            }
+          });
+        }
+      });
+    </script>
   </body>
 </html>
