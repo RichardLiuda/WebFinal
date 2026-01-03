@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CampusLink | Explore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="//fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet" />
+    <link
+      href="//fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1"
+      rel="stylesheet" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@material/web/": "https://esm.run/@material/web/"
+        }
+      }
+    </script>
+    <script type="module">
+      import "@material/web/all.js";
+      import { styles as typescaleStyles } from "@material/web/typography/md-typescale-styles.js";
+
+      if ("adoptedStyleSheets" in document) {
+        document.adoptedStyleSheets = [
+          ...document.adoptedStyleSheets,
+          typescaleStyles.styleSheet,
+        ];
+      }
+    </script>
+    <link rel="stylesheet" href="../css/global.css" />
+    <style>
+      /* Glassmorphism 3D background */
+      .glassmorphism-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        perspective: 1000px;
+        z-index: -1;
+      }
+
+      .glass-card {
+        position: absolute;
+        width: 220px;
+        height: 280px;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(48px);
+        -webkit-backdrop-filter: blur(48px);
+        border-radius: var(--md-sys-shape-corner-large);
+        border: 1px solid var(--md-sys-color-outline-variant);
+        box-shadow: var(--app-shadow-1);
+        padding: 16px;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.75;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .glass-card:hover {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.05) rotateY(0deg);
+        box-shadow: var(--app-shadow-2);
+      }
+
+      /* Mock social media post content - matching real post styles */
+      .card-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        justify-content: space-between;
+      }
+
+      .card-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+        background: var(--md-sys-color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--md-sys-color-on-primary);
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      .card-author {
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--md-sys-color-on-surface);
+      }
+
+      .card-time {
+        font-size: 11px;
+        color: var(--md-sys-color-on-surface-variant);
+      }
+
+      .card-text {
+        font-size: 12px;
+        color: var(--md-sys-color-on-surface);
+        line-height: 1.4;
+        flex: 1;
+      }
+
+      .card-image {
+        width: 100%;
+        height: 80px;
+        border-radius: var(--md-sys-shape-corner-medium);
+        background: linear-gradient(135deg, var(--md-sys-color-secondary-container) 0%, var(--md-sys-color-tertiary-container) 100%);
+        margin-top: 8px;
+      }
+
+      .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .card-tag {
+        padding: 4px 10px;
+        border-radius: var(--md-sys-shape-corner-full);
+        background: var(--md-sys-color-secondary-container);
+        color: var(--md-sys-color-on-secondary-container);
+        font-size: 0.8rem;
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 8px;
+        font-size: 11px;
+        color: var(--md-sys-color-on-surface-variant);
+      }
+
+      /* Card animations */
+      @keyframes float1 {
+        0% { transform: translateZ(0px) rotateY(0deg); }
+        50% { transform: translateZ(50px) rotateY(5deg); }
+        100% { transform: translateZ(0px) rotateY(0deg); }
+      }
+
+      @keyframes float2 {
+        0% { transform: translateZ(20px) rotateY(3deg); }
+        50% { transform: translateZ(70px) rotateY(-2deg); }
+        100% { transform: translateZ(20px) rotateY(3deg); }
+      }
+
+      @keyframes float3 {
+        0% { transform: translateZ(10px) rotateY(-2deg); }
+        50% { transform: translateZ(60px) rotateY(4deg); }
+        100% { transform: translateZ(10px) rotateY(-2deg); }
+      }
+
+      /* Assign different animations and positions to cards */
+      .glass-card:nth-child(1) {
+        top: 10%;
+        left: 10%;
+        animation: float1 12s ease-in-out infinite;
+      }
+
+      .glass-card:nth-child(2) {
+        top: 40%;
+        left: 20%;
+        animation: float2 15s ease-in-out infinite 2s;
+      }
+
+      .glass-card:nth-child(3) {
+        top: 20%;
+        left: 70%;
+        animation: float3 10s ease-in-out infinite 1s;
+      }
+
+      .glass-card:nth-child(4) {
+        top: 60%;
+        left: 60%;
+        animation: float1 14s ease-in-out infinite 3s;
+      }
+
+      .glass-card:nth-child(5) {
+        top: 70%;
+        left: 15%;
+        animation: float2 13s ease-in-out infinite 1.5s;
+      }
+
+      .glass-card:nth-child(6) {
+        top: 30%;
+        left: 80%;
+        animation: float3 11s ease-in-out infinite 2.5s;
+      }
+
+      /* Member B: Avatar styling and layout consistency */
+      #user-avatar-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+      #avatar-trigger {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid var(--md-sys-color-outline-variant);
+        margin-left: 8px;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #avatar-trigger:hover {
+        transform: scale(1.1);
+      }
+      /* 默认隐藏管理员选项 */
+      #menu-admin {
+        display: none;
+      }
+      
+      /* Explore page specific styles */
+      .hero {
+        padding: 32px 24px;
+        text-align: center;
+      }
+      
+      .search-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 80%;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: var(--md-sys-color-surface-variant);
+        border-radius: 24px;
+        padding: 8px 16px;
+      }
+      
+      .search-box md-icon {
+        color: var(--md-sys-color-on-surface-variant);
+      }
+      
+      .trends-section {
+        padding: 16px 24px;
+      }
+      
+      .trends-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      
+      .trends-list {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 16px;
+      }
+      
+      .trend-card {
+        flex: 0 0 auto;
+        padding: 16px;
+        background-color: var(--md-sys-color-surface-container-low);
+        border-radius: 12px;
+        cursor: pointer;
+        min-width: 180px;
+        transition: background-color 0.2s ease;
+      }
+      
+      .trend-card:hover {
+        background-color: var(--md-sys-color-surface-container);
+      }
+      
+      .trend-posts-count {
+        font-size: 0.8rem;
+        color: var(--md-sys-color-on-surface-variant);
+        margin-top: 8px;
+      }
+      
+      /* Section title styling */
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin: 16px 0 24px 0;
+        color: var(--md-sys-color-on-surface);
+      }
+      
+      /* Panel section styling */
+      .panel-section {
+        margin-bottom: 48px;
+      }
+      
+      /* Add spacing between sections */
+      #panel-trending {
+        margin-bottom: 40px;
+      }
+      
+      /* Helper panel styles */
+      .main-content {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: var(--app-gap);
+        align-items: start;
+        margin: 0;
+      }
+      
+      .helper-panel {
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 12px;
+        overflow: hidden;
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+      }
+      
+      .helper-panel > .helper-section:first-child .helper-section-title {
+        padding: 16px;
+        border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        margin-bottom: 0;
+      }
+      
+      .helper-section {
+        margin-bottom: 0;
+        padding: 20px;
+        border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      }
+      
+      .helper-section-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin: 0 0 12px 0;
+        color: var(--md-sys-color-on-surface);
+      }
+      
+      .helper-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .helper-list-item {
+        padding: 8px 0;
+        cursor: pointer;
+        color: var(--md-sys-color-on-surface-variant);
+        transition: all 0.2s ease;
+        border-radius: 8px;
+        padding: 8px 12px;
+      }
+      
+      .helper-list-item:hover {
+        color: var(--md-sys-color-primary);
+        background-color: var(--md-sys-color-surface-variant);
+      }
+
+      .helper-list-item.active {
+        color: var(--md-sys-color-primary);
+        background-color: var(--md-sys-color-primary-container);
+      }
+      
+      .helper-divider {
+        display: none;
+      }
+      
+      .quick-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      
+      .quick-filter {
+        padding: 6px 12px;
+        background-color: var(--md-sys-color-surface-variant);
+        border-radius: 16px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        color: var(--md-sys-color-on-surface-variant);
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+      }
+      
+      .quick-filter:hover {
+        background-color: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+        border-color: var(--md-sys-color-primary);
+      }
+
+      .quick-filter.active {
+        background-color: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        border-color: var(--md-sys-color-primary);
+      }
+      
+      .campus-snapshot {
+        padding: 16px;
+        background-color: var(--md-sys-color-surface-variant);
+        border-radius: 12px;
+        border: 1px solid var(--md-sys-color-outline-variant);
+      }
+      
+      .snapshot-text {
+        margin: 0;
+        color: var(--md-sys-color-on-surface-variant);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+      
+      .feed-panel {
+        flex: 1;
+        height: auto;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 1024px) {
+        .main-content {
+          grid-template-columns: 1fr;
+        }
+        
+        .helper-panel {
+          width: 100%;
+          position: relative;
+          top: 0;
+        }
+        
+        .feed-panel {
+          height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Glassmorphism 3D background container -->
+    <div class="glassmorphism-container">
+      <!-- Glass card 1 -->
+      <div class="glass-card">
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-avatar">JD</div>
+            <div>
+              <div class="card-author">Jessica Doe</div>
+              <div class="card-time">2h ago</div>
+            </div>
+          </div>
+          <div class="card-text">Just finished the library study session! Great day with friends</div>
+          <div class="card-image"></div>
+          <div class="card-tags">
+            <span class="card-tag">#campuslife</span>
+            <span class="card-tag">#study</span>
+          </div>
+          <div class="card-actions">
+            <span>❤️ 24</span>
+            <span>💬 5</span>
+            <span>🔄 2</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Glass card 2 -->
+      <div class="glass-card">
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-avatar">MK</div>
+            <div>
+              <div class="card-author">Michael Kim</div>
+              <div class="card-time">3h ago</div>
+            </div>
+          </div>
+          <div class="card-text">New club meeting tomorrow! Join us for discussion about AI in education</div>
+          <div class="card-image"></div>
+          <div class="card-tags">
+            <span class="card-tag">#techclub</span>
+            <span class="card-tag">#AI</span>
+          </div>
+          <div class="card-actions">
+            <span>❤️ 18</span>
+            <span>💬 8</span>
+            <span>🔄 4</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Glass card 3 -->
+      <div class="glass-card">
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-avatar">SL</div>
+            <div>
+              <div class="card-author">Sarah Lee</div>
+              <div class="card-time">5h ago</div>
+            </div>
+          </div>
+          <div class="card-text">Beautiful sunset on campus today! Perfect weather for outdoor activities</div>
+          <div class="card-image"></div>
+          <div class="card-tags">
+            <span class="card-tag">#sunset</span>
+            <span class="card-tag">#campusview</span>
+          </div>
+          <div class="card-actions">
+            <span>❤️ 35</span>
+            <span>💬 12</span>
+            <span>🔄 6</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Glass card 4 -->
+      <div class="glass-card">
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-avatar">TL</div>
+            <div>
+              <div class="card-author">Tom Liu</div>
+              <div class="card-time">7h ago</div>
+            </div>
+          </div>
+          <div class="card-text">Library is packed with students preparing for exams! Good luck everyone</div>
+          <div class="card-image"></div>
+          <div class="card-tags">
+            <span class="card-tag">#examweek</span>
+            <span class="card-tag">#studytime</span>
+          </div>
+          <div class="card-actions">
+            <span>❤️ 29</span>
+            <span>💬 15</span>
+            <span>🔄 3</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Glass card 5 -->
+      <div class="glass-card">
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-avatar">AN</div>
+            <div>
+              <div class="card-author">Anna Nguyen</div>
+              <div class="card-time">9h ago</div>
+            </div>
+          </div>
+          <div class="card-text">Just joined the photography club! Can't wait to capture beautiful moments around campus</div>
+          <div class="card-image"></div>
+          <div class="card-tags">
+            <span class="card-tag">#photography</span>
+            <span class="card-tag">#campuslife</span>
+          </div>
+          <div class="card-actions">
+            <span>❤️ 22</span>
+            <span>💬 7</span>
+            <span>🔄 5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Glass card 6 -->
+      <div class="glass-card">
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-avatar">RS</div>
+            <div>
+              <div class="card-author">Ryan Smith</div>
+              <div class="card-time">12h ago</div>
+            </div>
+          </div>
+          <div class="card-text">Amazing workshop on career development today! Learned so much about job searching</div>
+          <div class="card-image"></div>
+          <div class="card-tags">
+            <span class="card-tag">#careerdevelopment</span>
+            <span class="card-tag">#workshop</span>
+          </div>
+          <div class="card-actions">
+            <span>❤️ 31</span>
+            <span>💬 10</span>
+            <span>🔄 7</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <header class="top-app-bar">
+      <div class="brand">
+        <div class="brand-mark">CL</div>
+        <div class="brand-text">
+          <span class="md-typescale-title-large brand-name">CampusLink</span>
+          <span class="md-typescale-body-small brand-sub"
+            >Campus social studio</span
+          >
+        </div>
+      </div>
+      <div class="app-actions">
+        <!-- Member B: Avatar Slot & Anchor for Menu -->
+        <div id="user-avatar-container"></div>
+
+        <!-- Member B: Floating Account Menu -->
+        <md-menu id="account-menu" anchor="user-avatar-container">
+          <!-- 管理员控制台：仅限 admin 角色可见 -->
+          <md-menu-item id="menu-admin">
+            <div slot="headline">Admin Console</div>
+            <md-icon slot="start">admin_panel_settings</md-icon>
+          </md-menu-item>
+
+          <md-menu-item id="menu-profile">
+            <div slot="headline">My Profile</div>
+            <md-icon slot="start">person</md-icon>
+          </md-menu-item>
+
+          <md-menu-item id="menu-logout">
+            <div slot="headline">Logout</div>
+            <md-icon slot="start">logout</md-icon>
+          </md-menu-item>
+        </md-menu>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="hero surface-card">
+        <h1 class="md-typescale-display-small" id="hero-title">
+          Explore Campus
+        </h1>
+        <p class="md-typescale-body-large" id="hero-desc">
+          Discover what's happening around campus
+        </p>
+        <div class="search-box">
+          <md-icon>search</md-icon>
+          <md-outlined-text-field
+            id="explore-search"
+            label="Search topics, clubs, or people"
+            placeholder="e.g. #campuslife, #techclub"
+            style="flex: 1;"
+          ></md-outlined-text-field>
+        </div>
+      </section>
+
+      <!-- Trends Filter Section -->
+      <section class="trends-section surface-card">
+        <div class="trends-header">
+          <div class="md-typescale-title-small">Trending Now</div>
+          <md-text-button style="display: none;">See all</md-text-button>
+        </div>
+        <div id="trends-list" class="trends-list">
+          <!-- Trends will be dynamically added here -->
+        </div>
+      </section>
+
+      <div class="main-content">
+        <section class="helper-panel surface-card">
+          <!-- Explore Navigation -->
+          <div class="helper-section">
+            <h3 class="helper-section-title">Explore Navigation</h3>
+            <ul class="helper-list">
+              <li class="helper-list-item" data-navigation="trending">Trending</li>
+              <li class="helper-list-item" data-navigation="topics">Topics</li>
+              <li class="helper-list-item" data-navigation="clubs">Clubs</li>
+              <li class="helper-list-item" data-navigation="people" style="display: none;">People</li>
+              <li class="helper-list-item" data-navigation="events">Events</li>
+            </ul>
+          </div>
+          
+          <!-- My Following -->
+        <div class="helper-section">
+          <h3 class="helper-section-title">My Following</h3>
+          <div id="my-following-container">
+            <ul id="my-following-list" class="helper-list"></ul>
+            <div id="my-following-empty" class="empty-state" hidden>
+              No following yet.
+            </div>
+          </div>
+        </div>
+          
+          <!-- Quick Filters -->
+          <div class="helper-section">
+            <h3 class="helper-section-title">Quick Filters</h3>
+            <div class="quick-filters">
+              <span class="quick-filter" data-filter="24h">24h</span>
+              <span class="quick-filter" data-filter="popular">Popular</span>
+              <span class="quick-filter" data-filter="academic">Academic</span>
+              <span class="quick-filter" data-filter="life">Life</span>
+            </div>
+          </div>
+        </section>
+        <section class="feed-panel surface-card">
+          <div class="feed-panels">
+            <!-- Trending posts section -->
+            <div class="panel-section">
+              <h2 class="section-title">Trending</h2>
+              <div id="panel-trending" role="tabpanel">
+                <div id="feed-empty-trending" class="empty-state" hidden>
+                  No trending posts yet.
+                </div>
+                <div id="feed-list-trending" class="feed-list"></div>
+              </div>
+            </div>
+            
+            <!-- Users section -->
+            <div class="panel-section" style="display: none;">
+              <h2 class="section-title">Users</h2>
+              <div id="panel-users" role="tabpanel">
+                <div id="feed-empty-users" class="empty-state" hidden>
+                  No users found.
+                </div>
+                <div id="feed-list-users" class="feed-list"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <md-fab class="fab" variant="primary" aria-label="Create post">
+      <md-icon slot="icon">add</md-icon>
+    </md-fab>
+
+    <nav class="bottom-nav" aria-label="Primary">
+      <button class="nav-item" type="button" data-route="home">
+        <md-icon>home</md-icon>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item is-active" type="button" data-route="explore">
+        <md-icon>explore</md-icon>
+        <span class="nav-label">Explore</span>
+      </button>
+      <button class="nav-item" type="button" data-route="notification">
+        <md-icon>notifications</md-icon>
+        <span class="nav-label">Notifications</span>
+      </button>
+      <button
+        class="nav-item"
+        type="button"
+        data-route="profile"
+        id="nav-profile">
+        <md-icon>person</md-icon>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+
+    <!-- Dialogs from Content Module (Member C) -->
+    <md-dialog id="publish-dialog">
+      <div slot="headline">Create Post</div>
+      <form slot="content" id="publish-form" method="dialog">
+        <md-outlined-text-field
+          id="post-content"
+          type="textarea"
+          label="What's on your mind?"
+          rows="3"
+          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="post-image-url"
+          label="Image URL (optional)"
+          type="url"
+          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="post-tags-text"
+          label="Tags (space separated, e.g. #campus)"
+          style="width: 100%"></md-outlined-text-field>
+      </form>
+      <div slot="actions">
+        <md-text-button form="publish-form" value="cancel"
+          >Cancel</md-text-button
+        >
+        <md-filled-button id="publish-confirm-btn">Post</md-filled-button>
+      </div>
+    </md-dialog>
+
+    <md-dialog
+      id="post-detail-dialog"
+      style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
+      <div slot="headline">Post Details</div>
+      <div slot="content" style="padding-top: 10px">
+        <div id="detail-post-container"></div>
+        <md-divider style="margin: 16px 0"></md-divider>
+        <div class="comments-section">
+          <div class="md-typescale-title-small" style="margin-bottom: 12px">
+            Comments
+          </div>
+          <div
+            id="comments-list"
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              margin-bottom: 16px;
+            "></div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <md-outlined-text-field
+              id="new-comment-input"
+              label="Write a comment..."
+              style="flex: 1"></md-outlined-text-field>
+            <md-icon-button id="send-comment-btn"
+              ><md-icon>send</md-icon></md-icon-button
+            >
+          </div>
+        </div>
+      </div>
+      <div slot="actions">
+        <md-text-button
+          value="close"
+          onclick="document.getElementById('post-detail-dialog').close()"
+          >Close</md-text-button
+        >
+      </div>
+    </md-dialog>
+
+    <!-- Edit Post Dialog -->
+    <md-dialog id="edit-post-dialog">
+      <div slot="headline">Edit Post</div>
+      <form slot="content" id="edit-post-form">
+        <md-outlined-text-field
+          id="edit-post-content"
+          type="textarea"
+          label="Post content"
+          rows="3"
+          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-post-image-url"
+          label="Image URL (optional)"
+          type="url"
+          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-post-tags-text"
+          label="Tags (space separated, e.g. #campus)"
+          style="width: 100%"></md-outlined-text-field>
+      </form>
+      <div slot="actions">
+        <md-text-button form="edit-post-form" value="cancel">Cancel</md-text-button>
+        <md-filled-button id="edit-confirm-btn">Save</md-filled-button>
+      </div>
+    </md-dialog>
+
+    <!-- Base Scripts -->
+    <script src="../js/LocalStorage.js"></script>
+    <script src="../js/layout.js"></script>
+    <script src="../js/post_editor.js"></script>
+    <script src="../js/explore.js"></script>
+
+    <!-- Member B: Account Logic -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const navProfile = document.getElementById("nav-profile");
+        const avatarContainer = document.getElementById(
+          "user-avatar-container"
+        );
+        const accountMenu = document.getElementById("account-menu");
+        const menuAdmin = document.getElementById("menu-admin");
+
+        // 1. Sync UI with Auth State
+        function updateUI() {
+          const user = window.DB.ctx();
+          if (user) {
+            // User is logged in
+            
+            // 判断角色是否为管理员
+            if (user.role === "admin") {
+              menuAdmin.style.display = "flex"; // 显示管理选项
+            } else {
+              menuAdmin.style.display = "none";
+            }
+
+            // Display Avatar and attach Menu Trigger
+            avatarContainer.innerHTML = `
+                    <img id="avatar-trigger" src="${user.avatar}" alt="User Profile">
+                  `;
+
+            document
+              .getElementById("avatar-trigger")
+              .addEventListener("click", () => {
+                accountMenu.open = !accountMenu.open;
+              });
+          } else {
+            // Guest mode
+            
+            // 显示占位符头像
+            avatarContainer.innerHTML = `
+              <div id="avatar-trigger" class="placeholder-avatar">
+                <md-icon style="width: 24px; height: 24px; color: var(--md-sys-color-on-surface-variant);">person</md-icon>
+              </div>
+            `;
+            
+            // 添加点击跳转到登录页面的事件
+            document.getElementById('avatar-trigger').addEventListener('click', () => {
+              window.location.href = 'auth.html';
+            });
+            
+            menuAdmin.style.display = "none";
+          }
+        }
+
+        // 2. Navigation Actions
+
+        // 3. Floating Menu Actions
+        menuAdmin.addEventListener("click", () => {
+          window.location.href = "admin.html"; // 跳转到管理页面
+        });
+
+        document
+          .getElementById("menu-profile")
+          .addEventListener("click", () => {
+            window.location.href = "profile.html";
+          });
+
+        document.getElementById("menu-logout").addEventListener("click", () => {
+          window.DB.logout();
+          location.reload();
+        });
+
+        // 4. Silent Permission Guard for Bottom Navigation
+        navProfile.addEventListener("click", (e) => {
+          if (!window.DB.ctx()) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = "auth.html";
+          } else {
+            window.location.href = "profile.html";
+          }
+        });
+
+        // Initialization & Listener
+        updateUI();
+        window.DB.on("db:update", updateUI);
+      });
+    </script>
+  </body>
+</html>
