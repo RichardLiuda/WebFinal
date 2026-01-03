@@ -87,6 +87,29 @@
             height: 56px;
         }
 
+        .avatar-upload-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 8px;
+            background: var(--md-sys-color-surface-container-highest);
+            border-radius: var(--md-sys-shape-corner-medium); 
+            border: 1px solid var(--md-sys-color-outline);
+        }
+
+        #reg-avatar-preview {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--md-sys-color-surface-container-high);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px dashed var(--md-sys-color-outline);
+            flex-shrink: 0;
+        }
+
         @keyframes riseIn {
             from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
@@ -108,9 +131,8 @@
                 <md-primary-tab id="tab-register">Register</md-primary-tab>
             </md-tabs>
 
-            <!-- Sign In Form -->
+            <!-- 登录表单 -->
             <form id="login-form" class="form-section active">
-                <!-- maxlength removed to hide the counter -->
                 <md-outlined-text-field id="login-id" label="Student ID (10 Digits)" type="number" required>
                     <md-icon slot="leading-icon">badge</md-icon>
                 </md-outlined-text-field>
@@ -137,7 +159,7 @@
                 </md-filled-button>
             </form>
 
-            <!-- Register Form -->
+            <!-- 注册表单 -->
             <form id="register-form" class="form-section">
                 <md-outlined-text-field id="reg-id" label="Student ID (10 Digits)" type="number" required>
                     <md-icon slot="leading-icon">numbers</md-icon>
@@ -151,9 +173,21 @@
                     <md-icon slot="leading-icon">password</md-icon>
                 </md-outlined-text-field>
 
-                <md-outlined-text-field id="reg-avatar" label="Avatar URL (Optional)" placeholder="https://example.com/me.jpg">
-                    <md-icon slot="leading-icon">add_a_photo</md-icon>
-                </md-outlined-text-field>
+                <!-- 【修改点】删除了原有的 Avatar URL 文本框，替换为本地上传组件 -->
+                <div class="avatar-upload-container">
+                    <div id="reg-avatar-preview">
+                        <md-icon>add_a_photo</md-icon>
+                    </div>
+                    <div style="flex: 1;">
+                        <input type="file" id="reg-file-input" accept="image/*" style="display: none;">
+                        <md-filled-tonal-button type="button" onclick="document.getElementById('reg-file-input').click()">
+                            Choose Avatar
+                        </md-filled-tonal-button>
+                        <div class="md-typescale-body-small" style="margin-top: 4px; color: var(--md-sys-color-outline);">Local file (Auto-compressed)</div>
+                    </div>
+                </div>
+                <!-- 隐藏域用于保存 Base64 字符串，提交给 auth.js -->
+                <input type="hidden" id="reg-avatar-base64">
 
                 <md-outlined-text-field id="reg-tags" label="Interests (Split by comma)" placeholder="Coding, Music, Sports">
                     <md-icon slot="leading-icon">sell</md-icon>
@@ -178,7 +212,7 @@
         </div>
     </div>
 
-    <!-- Forgot Password Dialog -->
+    <!-- 忘记密码对话框 -->
     <md-dialog id="forgot-password-dialog">
         <div slot="headline">Reset Password</div>
         <form slot="content" style="display: flex; flex-direction: column; gap: 20px; margin-top: 16px;">
@@ -194,7 +228,7 @@
         </form>
         <div slot="actions">
             <md-text-button form="forgot-password-dialog" value="cancel" onclick="document.getElementById('forgot-password-dialog').close()">Cancel</md-text-button>
-            <md-filled-button id="forgot-submit-btn" onclick="alert('Password reset link would be sent to your email.')">Submit</md-filled-button>
+            <md-filled-button id="forgot-submit-btn" onclick="alert('Sent!')">Submit</md-filled-button>
         </div>
     </md-dialog>
 
