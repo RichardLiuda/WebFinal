@@ -344,7 +344,7 @@
           <div id="profile-more-menu" class="profile-more-menu" style="display: none;">
             <div class="profile-more-item profile-edit-btn">Edit Profile</div>
             <div class="profile-more-item">Privacy Settings</div>
-            <div class="profile-more-item">Account Settings</div>
+            <div class="profile-more-item profile-settings-btn">Account Settings</div>
           </div>
         </div>
         <div class="profile-header">
@@ -553,6 +553,32 @@
       <div slot="actions">
         <md-text-button form="edit-profile-form" value="cancel">Cancel</md-text-button>
         <md-filled-button id="edit-profile-confirm-btn">Save Changes</md-filled-button>
+      </div>
+    </md-dialog>
+
+    <!-- Account Settings Dialog -->
+    <md-dialog id="account-settings-dialog" style="min-width: 300px; max-width: 90vw; width: 400px;">
+      <div slot="headline">Account Settings</div>
+      <div slot="content" style="padding-top: 10px;">
+        <div class="md-typescale-title-medium" style="margin-bottom: 12px;">Theme Color</div>
+        <div class="md-typescale-body-medium" style="margin-bottom: 16px;">Choose a color for your personal theme.</div>
+        
+        <div id="theme-color-picker" style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
+          <div class="color-option" data-color="#006a6a" style="background-color: #006a6a; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#6750a4" style="background-color: #6750a4; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#9c4146" style="background-color: #9c4146; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#695f00" style="background-color: #695f00; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#006c4c" style="background-color: #006c4c; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#00639b" style="background-color: #00639b; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+        </div>
+
+        <md-divider style="margin: 24px 0;"></md-divider>
+        <div style="display: flex; justify-content: flex-end;">
+            <md-text-button id="reset-theme-btn">Reset to Default</md-text-button>
+        </div>
+      </div>
+      <div slot="actions">
+        <md-text-button value="close" onclick="document.getElementById('account-settings-dialog').close()">Close</md-text-button>
       </div>
     </md-dialog>
 
