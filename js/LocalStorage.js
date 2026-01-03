@@ -25,20 +25,6 @@ const Utils = {
     }
 };
 
-const ThemeEngine = {
-    apply: (hex) => {
-        document.documentElement.style.setProperty('--md-sys-color-primary', hex);
-        document.documentElement.style.setProperty('--md-sys-color-on-primary', '#ffffff');
-        localStorage.setItem('m3_theme_color', hex);
-    },
-    load: () => {
-        const savedColor = localStorage.getItem('m3_theme_color');
-        if (savedColor) {
-            ThemeEngine.apply(savedColor);
-        }
-    }
-};
-
 const DB = {
     _get: (key) => JSON.parse(localStorage.getItem(key) || '[]'),
     _set: (key, val) => {
@@ -440,4 +426,3 @@ initDatabase();
 window.DB = DB;
 window.Utils = Utils;
 window.ThemeEngine = ThemeEngine;
-ThemeEngine.load();
