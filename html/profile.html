@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CampusLink | Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="//fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet" />
+    <link
+      href="//fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1"
+      rel="stylesheet" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@material/web/": "https://esm.run/@material/web/"
+        }
+      }
+    </script>
+    <script type="module">
+      import "@material/web/all.js";
+      import { styles as typescaleStyles } from "@material/web/typography/md-typescale-styles.js";
+
+      if ("adoptedStyleSheets" in document) {
+        document.adoptedStyleSheets = [
+          ...document.adoptedStyleSheets,
+          typescaleStyles.styleSheet,
+        ];
+      }
+    </script>
+    <link rel="stylesheet" href="../css/global.css" />
+    <script src="../js/ThemeEngine.js"></script>
+    <style>
+      /* Profile page specific styles */
+      .profile-container {
+        width: min(100%, var(--app-max-width));
+        margin: 0 auto;
+        padding: var(--app-gap) var(--app-side-padding) var(--app-bottom-padding);
+        display: flex;
+        flex-direction: column;
+        gap: var(--app-gap);
+      }
+      
+      .profile-header {
+        margin-bottom: 24px;
+      }
+      
+      .profile-info {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .profile-avatar-container {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 4px solid var(--md-sys-color-surface);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      .profile-details {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .profile-name {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+      }
+      
+      .profile-bio {
+        margin: 0;
+        color: var(--md-sys-color-on-surface-variant);
+        max-width: 600px;
+      }
+      
+      .profile-stats {
+        display: flex;
+        gap: 24px;
+        margin-top: 8px;
+      }
+      
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .stat-value {
+        font-weight: 700;
+        font-size: 1.25rem;
+      }
+      
+      .stat-label {
+        font-size: 0.875rem;
+        color: var(--md-sys-color-on-surface-variant);
+      }
+      
+      .profile-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 16px;
+      }
+      
+      .posts-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .feed-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .user-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        background-color: var(--md-sys-color-surface);
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+      }
+      
+      .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+      }
+      
+      .user-details {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .user-name {
+        font-weight: 500;
+        margin: 0;
+      }
+      
+      .user-id {
+        font-size: 0.875rem;
+        color: var(--md-sys-color-on-surface-variant);
+        margin: 0;
+      }
+      
+      @media (max-width: 600px) {
+        .profile-actions {
+          margin-top: 16px;
+          justify-content: flex-start;
+        }
+        
+        .profile-avatar {
+          width: 80px;
+          height: 80px;
+          margin-top: -40px;
+        }
+        
+        .profile-avatar-container {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+        
+        .profile-stats {
+          gap: 16px;
+        }
+      }
+      /* User Avatar and Menu Styling */
+      #user-avatar-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+      #avatar-trigger {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid var(--md-sys-color-outline-variant);
+        margin-left: 8px;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #avatar-trigger:hover {
+        transform: scale(1.1);
+      }
+      /* 默认隐藏管理员选项 */
+      #menu-admin {
+        display: none;
+      }
+      
+      /* 帖子更多选项菜单样式 */
+      .post-more-container {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .post-more-menu {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: var(--md-sys-color-surface);
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        z-index: 100;
+        min-width: 160px;
+        padding: 8px 0;
+        border: 1px solid var(--md-sys-color-outline-variant);
+      }
+      
+      .post-more-item {
+        display: block;
+        width: 100%;
+        padding: 8px 16px;
+        text-align: left;
+        border: none;
+        background: none;
+        font-size: 14px;
+        color: var(--md-sys-color-on-surface);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      
+      .post-more-item:hover {
+        background-color: var(--md-sys-color-surface-container);
+      }
+      
+      /* 确保更多选项按钮在帖子卡片右下角 */
+      .post-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      /* 个人资料更多选项菜单样式 */
+      .profile-more-container {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .profile-more-menu {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: var(--md-sys-color-surface);
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        z-index: 100;
+        min-width: 160px;
+        padding: 8px 0;
+        border: 1px solid var(--md-sys-color-outline-variant);
+      }
+      
+      .profile-more-item {
+        display: block;
+        width: 100%;
+        padding: 8px 16px;
+        text-align: left;
+        border: none;
+        background: none;
+        font-size: 14px;
+        color: var(--md-sys-color-on-surface);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      
+      .profile-more-item:hover {
+        background-color: var(--md-sys-color-surface-container);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top-app-bar">
+      <div class="brand">
+        <div class="brand-mark">CL</div>
+        <div class="brand-text">
+          <span class="md-typescale-title-large brand-name">CampusLink</span>
+          <span class="md-typescale-body-small brand-sub"
+            >Campus social studio</span
+          >
+        </div>
+      </div>
+      <div class="app-actions">
+        <!-- Persistent Action Buttons -->
+        <md-icon-button aria-label="Search">
+          <md-icon>search</md-icon>
+        </md-icon-button>
+        
+        <md-icon-button aria-label="Notifications">
+          <md-icon>notifications</md-icon>
+        </md-icon-button>
+
+        <md-icon-button id="btn-theme-toggle" aria-label="Toggle Theme">
+          <md-icon>brightness_6</md-icon>
+        </md-icon-button>
+
+        <div id="user-avatar-container"></div>
+
+        <md-menu id="account-menu" anchor="user-avatar-container">
+          <md-menu-item id="menu-admin">
+            <div slot="headline">Admin Console</div>
+            <md-icon slot="start">admin_panel_settings</md-icon>
+          </md-menu-item>
+
+          <md-menu-item id="menu-profile">
+            <div slot="headline">My Profile</div>
+            <md-icon slot="start">person</md-icon>
+          </md-menu-item>
+
+          <md-menu-item id="menu-logout">
+            <div slot="headline">Logout</div>
+            <md-icon slot="start">logout</md-icon>
+          </md-menu-item>
+        </md-menu>
+      </div>
+    </header>
+
+    <main class="profile-container">
+      <section class="feed-panel surface-card">
+        <div class="profile-more-container">
+          <md-icon-button id="more-btn" aria-label="More options">
+            <md-icon>more_vert</md-icon>
+          </md-icon-button>
+          <div id="profile-more-menu" class="profile-more-menu" style="display: none;">
+            <div class="profile-more-item profile-edit-btn">Edit Profile</div>
+            <div class="profile-more-item">Privacy Settings</div>
+            <div class="profile-more-item profile-settings-btn">Account Settings</div>
+          </div>
+        </div>
+        <div class="profile-header">
+          <div class="profile-info">
+            <div class="profile-avatar-container">
+              <img id="profile-avatar" class="profile-avatar" src="" alt="Profile Avatar">
+              
+              <div class="profile-details">
+                <h1 id="profile-name" class="profile-name"></h1>
+                <p id="profile-bio" class="profile-bio"></p>
+                
+                <div class="profile-stats">
+                  <div class="stat-item">
+                    <span id="posts-count" class="stat-value">0</span>
+                    <span class="stat-label">Posts</span>
+                  </div>
+                  <div class="stat-item">
+                    <span id="following-count" class="stat-value">0</span>
+                    <span class="stat-label">Following</span>
+                  </div>
+                  <div class="stat-item">
+                    <span id="followers-count" class="stat-value">0</span>
+                    <span class="stat-label">Followers</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="profile-actions">
+              <md-filled-button id="follow-btn">Follow</md-filled-button>
+              <md-outlined-button id="message-btn">Message</md-outlined-button>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <div class="profile-content">
+        <div class="main-content">
+          <!-- Tags Filter Card -->
+          <section class="tags-filter-card surface-card" id="tags-filter-card">
+            <div class="md-typescale-title-small">Filter by Tags</div>
+            <md-outlined-text-field id="tag-input" label="Add a tag" placeholder="e.g., campus, event"></md-outlined-text-field>
+            <md-filled-button id="add-tag-btn">Add Tag</md-filled-button>
+            <div class="md-typescale-body-small">Current Tags:</div>
+            <div id="tags-list" class="tags-list"></div>
+            <md-outlined-button id="clear-tags-btn">Clear All</md-outlined-button>
+          </section>
+          
+          <!-- User Search Card -->
+          <section class="tags-filter-card surface-card" id="user-search-card" style="display: none;">
+            <div class="md-typescale-title-small">Search Users</div>
+            <md-outlined-text-field id="user-search-input" label="Search by ID or Nickname"></md-outlined-text-field>
+            <md-filled-button id="user-search-btn">Search</md-filled-button>
+            <div class="md-typescale-body-small" id="search-result-count" style="margin-top: 16px;">No results yet</div>
+          </section>
+          
+          <section class="feed-panel surface-card">
+            <md-tabs id="profile-tabs" class="feed-tabs" aria-label="Profile tabs">
+              <md-primary-tab id="tab-posts" data-tab="posts" active aria-controls="panel-posts">Posts</md-primary-tab>
+              <md-primary-tab id="tab-following" data-tab="following" aria-controls="panel-following">Following</md-primary-tab>
+              <md-primary-tab id="tab-followers" data-tab="followers" aria-controls="panel-followers">Followers</md-primary-tab>
+            </md-tabs>
+            
+            <div class="feed-panels">
+              <div id="panel-posts" role="tabpanel" aria-labelledby="tab-posts">
+                <div id="posts-container" class="posts-container"></div>
+              </div>
+              <div id="panel-following" role="tabpanel" aria-labelledby="tab-following" hidden>
+                <div id="following-container" class="feed-list"></div>
+              </div>
+              <div id="panel-followers" role="tabpanel" aria-labelledby="tab-followers" hidden>
+                <div id="followers-container" class="feed-list"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <md-fab class="fab" variant="primary" aria-label="Create post">
+      <md-icon slot="icon">add</md-icon>
+    </md-fab>
+
+    <nav class="bottom-nav" aria-label="Primary">
+      <button class="nav-item" type="button" data-route="home">
+        <md-icon>home</md-icon>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" type="button" data-route="explore">
+        <md-icon>explore</md-icon>
+        <span class="nav-label">Explore</span>
+      </button>
+      <button class="nav-item" type="button" data-route="notification">
+        <md-icon>notifications</md-icon>
+        <span class="nav-label">Notifications</span>
+      </button>
+      <button
+        class="nav-item is-active"
+        type="button"
+        data-route="profile"
+        id="nav-profile">
+        <md-icon>person</md-icon>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+
+    <!-- Dialogs -->
+    <md-dialog id="publish-dialog">
+      <div slot="headline">Create Post</div>
+      <form slot="content" id="publish-form" method="dialog">
+        <md-outlined-text-field
+          id="post-content"
+          type="textarea"
+          label="What's on your mind?"
+          rows="3"
+          style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="post-image-url"
+          label="Image URL (optional)"
+          type="url"
+          style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="post-tags-text"
+          label="Tags (space separated, e.g. #campus)"
+          style="width: 100%;"></md-outlined-text-field>
+      </form>
+      <div slot="actions">
+        <md-text-button form="publish-form" value="cancel">Cancel</md-text-button>
+        <md-filled-button id="publish-confirm-btn">Post</md-filled-button>
+      </div>
+    </md-dialog>
+
+    <md-dialog id="post-detail-dialog" style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
+      <div slot="headline">Post Details</div>
+      <div slot="content" style="padding-top: 10px;">
+        <div id="detail-post-container">
+            <!-- Post content cloned here -->
+        </div>
+        <md-divider style="margin: 16px 0;"></md-divider>
+        <div class="comments-section">
+          <div class="md-typescale-title-small" style="margin-bottom: 12px;">Comments</div>
+          <div id="comments-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;"></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <md-outlined-text-field
+              id="new-comment-input"
+              label="Write a comment..."
+              style="flex: 1;"></md-outlined-text-field>
+            <md-icon-button id="send-comment-btn"><md-icon>send</md-icon></md-icon-button>
+          </div>
+        </div>
+      </div>
+      <div slot="actions">
+        <md-text-button
+          value="close"
+          onclick="document.getElementById('post-detail-dialog').close()"
+          >Close</md-text-button>
+      </div>
+    </md-dialog>
+    
+    <!-- Edit Post Dialog -->
+    <md-dialog id="edit-post-dialog" style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
+      <div slot="headline">Edit Post</div>
+      <form slot="content" id="edit-form" method="dialog" style="padding-top: 10px;">
+        <md-outlined-text-field
+          id="edit-post-content"
+          type="textarea"
+          label="Edit your post..."
+          rows="3"
+          style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-post-image-url"
+          label="Image URL (optional)"
+          type="url"
+          style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-post-tags-text"
+          label="Tags (space separated, e.g. #campus)"
+          style="width: 100%;"></md-outlined-text-field>
+      </form>
+      <div slot="actions">
+        <md-text-button form="edit-form" value="cancel">Cancel</md-text-button>
+        <md-filled-button id="edit-confirm-btn">Save Changes</md-filled-button>
+      </div>
+    </md-dialog>
+    
+    <!-- Edit Profile Dialog -->
+    <md-dialog id="edit-profile-dialog" style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
+      <div slot="headline">Edit Profile</div>
+      <form slot="content" id="edit-profile-form" method="dialog" style="padding-top: 10px;">
+        <md-outlined-text-field
+          id="edit-profile-nickname"
+          label="Nickname"
+          style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-profile-bio"
+          type="textarea"
+          label="Bio"
+          rows="3"
+          style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
+        <md-outlined-text-field
+          id="edit-profile-avatar"
+          label="Avatar URL (optional)"
+          type="url"
+          style="width: 100%;"></md-outlined-text-field>
+      </form>
+      <div slot="actions">
+        <md-text-button form="edit-profile-form" value="cancel">Cancel</md-text-button>
+        <md-filled-button id="edit-profile-confirm-btn">Save Changes</md-filled-button>
+      </div>
+    </md-dialog>
+
+    <!-- Account Settings Dialog -->
+    <md-dialog id="account-settings-dialog" style="min-width: 300px; max-width: 90vw; width: 400px;">
+      <div slot="headline">Account Settings</div>
+      <div slot="content" style="padding-top: 10px;">
+        <div class="md-typescale-title-medium" style="margin-bottom: 12px;">Theme Color</div>
+        <div class="md-typescale-body-medium" style="margin-bottom: 16px;">Choose a color for your personal theme.</div>
+        
+        <div id="theme-color-picker" style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
+          <div class="color-option" data-color="#006a6a" style="background-color: #006a6a; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#6750a4" style="background-color: #6750a4; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#9c4146" style="background-color: #9c4146; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#695f00" style="background-color: #695f00; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#006c4c" style="background-color: #006c4c; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+          <div class="color-option" data-color="#00639b" style="background-color: #00639b; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></div>
+        </div>
+
+        <md-divider style="margin: 24px 0;"></md-divider>
+        <div style="display: flex; justify-content: flex-end;">
+            <md-text-button id="reset-theme-btn">Reset to Default</md-text-button>
+        </div>
+      </div>
+      <div slot="actions">
+        <md-text-button value="close" onclick="document.getElementById('account-settings-dialog').close()">Close</md-text-button>
+      </div>
+    </md-dialog>
+
+    <!-- Base Scripts -->
+    <script src="../js/LocalStorage.js"></script>
+    <script src="../js/layout.js"></script>
+    <script src="../js/post_editor.js"></script>
+    <script src="../js/social.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Theme Toggle
+        const themeBtn = document.getElementById('btn-theme-toggle');
+        if (themeBtn) {
+          themeBtn.addEventListener('click', () => {
+            if (window.ThemeEngine) {
+              window.ThemeEngine.toggle();
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

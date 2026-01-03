@@ -21,6 +21,7 @@
         }
     </script>
     <link rel="stylesheet" href="../css/global.css">
+    <script src="../js/ThemeEngine.js"></script>
     
     <style>
         body {
@@ -123,74 +124,6 @@
     </div>
 
     <script src="../js/LocalStorage.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const user = window.DB.ctx();
-            
-            // SECURITY GUARD: Only admins allowed
-            if (!user || user.role !== 'admin') {
-                alert("Security Alert: You are not authorized to view this page.");
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const renderUsers = () => {
-                const users = JSON.parse(localStorage.getItem('m3_users') || '[]');
-                const container = document.getElementById('user-list-container');
-                
-                // Update Stats
-                document.getElementById('stat-total').innerText = users.length;
-                document.getElementById('stat-banned').innerText = users.filter(u => u.isBanned).length;
-
-                container.innerHTML = users.map(u => `
-                    <div class="user-card ${u.isBanned ? 'is-banned' : ''}">
-                        <img src="${u.avatar}" class="user-avatar">
-                        <div class="user-info">
-                            <div class="md-typescale-title-medium">
-                                ${u.nickname} 
-                                ${u.role === 'admin' ? '<span class="badge-admin">ADMIN</span>' : ''}
-                            </div>
-                            <div class="md-typescale-body-small">ID: ${u.id} • ${u.isBanned ? 'Status: Banned' : 'Status: Active'}</div>
-                        </div>
-                        <div class="action-btns">
-                            ${u.role !== 'admin' ? `
-                                <md-filled-tonal-button onclick="toggleBan('${u.id}')">
-                                    <md-icon slot="icon">${u.isBanned ? 'check_circle' : 'block'}</md-icon>
-                                    ${u.isBanned ? 'Unban' : 'Ban User'}
-                                </md-filled-tonal-button>
-                                <md-outlined-button onclick="resetBio('${u.id}')">
-                                    Reset Profile
-                                </md-outlined-button>
-                            ` : '<span class="md-typescale-body-small" style="padding: 8px">Admin Protected</span>'}
-                        </div>
-                    </div>
-                `).join('');
-            };
-
-            window.toggleBan = (targetId) => {
-                let users = JSON.parse(localStorage.getItem('m3_users'));
-                const index = users.findIndex(u => u.id === targetId);
-                if (index > -1) {
-                    users[index].isBanned = !users[index].isBanned;
-                    localStorage.setItem('m3_users', JSON.stringify(users));
-                    renderUsers();
-                }
-            };
-
-            window.resetBio = (targetId) => {
-                if(confirm("Are you sure you want to reset this student's profile bio?")) {
-                    let users = JSON.parse(localStorage.getItem('m3_users'));
-                    const index = users.findIndex(u => u.id === targetId);
-                    if (index > -1) {
-                        users[index].bio = "Profile reset by community moderator.";
-                        localStorage.setItem('m3_users', JSON.stringify(users));
-                        renderUsers();
-                    }
-                }
-            };
-
-            renderUsers();
-        });
-    </script>
+    <script src="../js/admin_panel.js"></script>
 </body>
 </html>

@@ -136,6 +136,24 @@ md-icon[filled] {
   gap: 8px;
 }
 
+.placeholder-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--md-sys-color-outline-variant);
+  background-color: var(--md-sys-color-surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.placeholder-avatar:hover {
+  transform: scale(1.1);
+}
+
 .app-shell {
   width: min(100%, var(--app-max-width));
   margin: 0 auto;
@@ -143,6 +161,60 @@ md-icon[filled] {
   display: flex;
   flex-direction: column;
   gap: var(--app-gap);
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--app-gap);
+  align-items: start;
+}
+
+.tags-filter-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.tags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.filter-tag-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tag-pill:hover {
+  background: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-on-secondary);
+}
+
+.filter-tag-pill .remove-tag {
+  margin-left: 8px;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.filter-tag-pill:hover .remove-tag {
+  opacity: 1;
 }
 
 .surface-card {
@@ -238,6 +310,74 @@ md-icon[filled] {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.post-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.post-more-container {
+  position: relative;
+  display: inline-block;
+  margin-left: auto;
+}
+
+.post-more-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--app-shadow-2);
+  padding: 8px;
+  min-width: 120px;
+  z-index: 100;
+}
+
+.post-more-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: var(--md-sys-shape-corner-medium);
+  font-size: 0.9rem;
+}
+
+.post-more-item:hover {
+  background: var(--md-sys-color-surface-variant);
+}
+
+.profile-more-container {
+  position: relative;
+  display: inline-block;
+  margin-left: auto;
+}
+
+.profile-more-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--app-shadow-2);
+  padding: 8px;
+  min-width: 120px;
+  z-index: 100;
+}
+
+.profile-more-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: var(--md-sys-shape-corner-medium);
+  font-size: 0.9rem;
+}
+
+.profile-more-item:hover {
+  background: var(--md-sys-color-surface-variant);
 }
 
 .empty-state {
@@ -338,6 +478,14 @@ md-icon[filled] {
 
   .fab {
     right: 16px;
+  }
+
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .tags-filter-card {
+    position: static;
   }
 }
 

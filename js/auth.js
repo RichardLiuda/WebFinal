@@ -3,6 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const regForm = document.getElementById('register-form');
 
+    // --- 0. Remember Me: Auto-fill saved ID ---
+    const savedId = localStorage.getItem('m3_remember_id');
+    if (savedId) {
+        document.getElementById('login-id').value = savedId;
+        document.getElementById('remember').checked = true;
+    }
+
     // --- 1. Tab Switching ---
     tabs.addEventListener('change', () => {
         const isLogin = tabs.activeTabIndex === 0;
@@ -32,9 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-login').addEventListener('click', () => {
         const id = document.getElementById('login-id').value;
         const pwd = document.getElementById('login-pwd').value;
+        const remember = document.getElementById('remember').checked;
 
         console.log("Attempting login with:", id, pwd); 
         if (window.DB.login(id, pwd)) {
+            if (remember) {
+                localStorage.setItem('m3_remember_id', id);
+            } else {
+                localStorage.removeItem('m3_remember_id');
+            }
             window.location.href = 'index.html';
         } else {
             const idField = document.getElementById('login-id');
@@ -74,11 +87,23 @@ document.addEventListener('DOMContentLoaded', () => {
             id,
             password: pwd,
             nickname,
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`, 
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
             bio: bio || "Exploring CampusLink!",
+            bgImage: '',
+            tags: [],
+            stats: {
+                following: 0,
+                followers: 0,
+                posts: 0
+            },
+            settings: {
+                themeColor: '#6750a4',
+                visibility: 'public'
+            },
             role: 'user',
             isBanned: false,
-            stats: { following: 0, followers: 0, posts: 0 }
+            following: [],
+            followers: []
         };
 
         if (window.DB.register(newUser)) {
