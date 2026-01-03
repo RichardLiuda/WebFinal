@@ -25,7 +25,6 @@
     background: linear-gradient(to bottom,
             rgba(245, 251, 250, 0.75) 0%,
             rgba(245, 251, 250, 0.55) 50%);
-    backdrop-filter: blur(2px);
     z-index: 50;
     pointer-events: none;
 }

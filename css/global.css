@@ -184,7 +184,8 @@ md-icon[filled] {
 
 .main-content {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 1fr 300px;
+  /* Swapped: Feed on left (1fr), Sidebar on right (300px) */
   gap: var(--app-gap);
   align-items: start;
 }
