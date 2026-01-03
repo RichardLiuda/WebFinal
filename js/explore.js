@@ -130,12 +130,12 @@
     // For each trend, generate some mock posts
     state.trends.forEach(trend => {
       const postCount = Math.floor(Math.random() * 5) + 3; // 3-7 posts per trend
-      
+
       for (let i = 0; i < postCount; i++) {
         const user = mockUsers[Math.floor(Math.random() * mockUsers.length)];
         const contentIndex = Math.floor(Math.random() * contentTemplates[trend.tag].length);
         const hasImage = Math.random() > 0.3; // 70% chance of having an image
-        
+
         posts.push({
           id: postId++,
           authorId: user.id,
@@ -179,19 +179,19 @@
     return baseUsers.map(user => {
       // Generate random followers count (10-500)
       const followersCount = Math.floor(Math.random() * 491) + 10;
-      
+
       // Get recent post images from their posts
       const userPosts = mockPosts.filter(post => post.authorId === user.id);
       const recentPostImages = userPosts
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
         .slice(0, 3) // Get up to 3 most recent posts
         .flatMap(post => post.images); // Extract all images from these posts
-      
+
       // If user has no posts with images, generate some random ones
-      const finalImages = recentPostImages.length > 0 ? recentPostImages : 
+      const finalImages = recentPostImages.length > 0 ? recentPostImages :
         Array(Math.floor(Math.random() * 3) + 1).fill(0)
           .map(() => `https://picsum.photos/id/${Math.floor(Math.random() * 1000)}/200/200`);
-      
+
       return {
         ...user,
         followers: followersCount,
@@ -219,20 +219,20 @@
       filteredPosts = filteredPosts.filter(post => {
         // Check post content
         const contentMatch = post.content.toLowerCase().includes(query);
-        
+
         // Check author nickname
         const author = mockUsers.find(user => user.id === post.authorId);
         const authorMatch = author ? author.nickname.toLowerCase().includes(query) : false;
-        
+
         // Check post tags
         const tagsMatch = post.tags.some(tag => tag.toLowerCase().includes(query));
-        
+
         // Check trend information
         const trend = state.trends.find(t => t.id === post.trendId);
-        const trendMatch = trend ? 
-          trend.tag.toLowerCase().includes(query) || 
+        const trendMatch = trend ?
+          trend.tag.toLowerCase().includes(query) ||
           trend.description.toLowerCase().includes(query) : false;
-        
+
         // Return true if any match is found
         return contentMatch || authorMatch || tagsMatch || trendMatch;
       });
@@ -278,36 +278,36 @@
     card.style.marginBottom = '16px';
     card.style.cursor = 'pointer';
     card.style.transition = 'background-color 0.2s ease, transform 0.2s ease';
-    
+
     // Add hover effect
     card.addEventListener('mouseenter', () => {
       card.style.backgroundColor = 'var(--md-sys-color-surface-container)';
       card.style.transform = 'translateY(-2px)';
     });
-    
+
     card.addEventListener('mouseleave', () => {
       card.style.backgroundColor = 'var(--md-sys-color-surface-container-low)';
       card.style.transform = 'translateY(0)';
     });
-    
+
     // Add click event to navigate to user profile
     card.addEventListener('click', () => {
       window.location.href = `profile.html?id=${user.id}`;
     });
-    
+
     // Render user avatar
-    const avatarHtml = user.avatar 
+    const avatarHtml = user.avatar
       ? `<img src="${escapeHtml(user.avatar)}" alt="${escapeHtml(user.nickname)}" style="width:64px; height:64px; border-radius:16px; object-fit:cover; margin-bottom:12px;">`
-      : `<div class="author-avatar brand-mark" style="width: 64px; height: 64px; font-size: 24px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">${String(user.id).substring(0,2)}</div>`;
-    
+      : `<div class="author-avatar brand-mark" style="width: 64px; height: 64px; font-size: 24px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">${String(user.id).substring(0, 2)}</div>`;
+
     // Render recent post images
-    const recentImagesHtml = user.recentPostsImages.map(img => 
+    const recentImagesHtml = user.recentPostsImages.map(img =>
       `<img src="${img}" style="width:60px; height:60px; border-radius:8px; object-fit:cover; margin-right:8px; margin-bottom:8px;" onerror="this.style.display='none';">`
     ).join('');
-    
+
     // Format followers count
     const followersText = user.followers === 1 ? '1 follower' : `${user.followers} followers`;
-    
+
     card.innerHTML = `
       ${avatarHtml}
       <div class="md-typescale-title-small" style="margin-bottom:4px;">${escapeHtml(user.nickname)}</div>
@@ -317,46 +317,237 @@
         ${recentImagesHtml}
       </div>
     `;
-    
+
     return card;
+  };
+
+  // Handle Follow
+  const handleFollow = (authorId, btnElement) => {
+    const user = window.DB.ctx();
+    if (!user) {
+      if (confirm("Please login to follow users. Go to login?")) {
+        window.location.href = "auth.html";
+      }
+      return;
+    }
+
+    // Toggle follow
+    window.DB.toggleFollow(authorId);
+
+    // Update button text
+    if (user.following.includes(authorId)) {
+      // User was following, now unfollowed (toggleFollow logic depends on implementation, usually toggles)
+      // Let's check the new state
+      const updatedUser = window.DB.ctx();
+      const isFollowing = updatedUser.following.includes(authorId);
+      btnElement.innerText = isFollowing ? "Unfollow" : "Follow";
+    } else {
+      // Standard toggle check
+      const updatedUser = window.DB.ctx();
+      const isFollowing = updatedUser.following.includes(authorId);
+      btnElement.innerText = isFollowing ? "Unfollow" : "Follow";
+    }
+
+    // Refresh following list in helper panel
+    // renderFollowingList is defined later, might need to hoist or call via event
+    const event = new CustomEvent('db:update', { detail: { key: 'following' } });
+    window.dispatchEvent(event);
+  };
+
+  // Handle Like
+  const handleLike = (post, btnElement) => {
+    const user = window.DB.ctx();
+    if (!user) {
+      if (confirm("Please login to like posts. Go to login?")) {
+        window.location.href = "auth.html";
+      }
+      return;
+    }
+
+    const userId = String(user.id);
+    const index = post.likes.indexOf(userId);
+
+    if (index === -1) {
+      post.likes.push(userId);
+      btnElement.querySelector('md-icon').innerText = 'favorite';
+    } else {
+      post.likes.splice(index, 1);
+      btnElement.querySelector('md-icon').innerText = 'favorite_border';
+    }
+
+    // Update count text node (assumes structure: icon + text)
+    // Since md-outlined-button has slot='icon', text is child 
+    // We can just rebuild the innerHTML or update safely
+    btnElement.innerText = ` ${post.likes.length}`;
+    const icon = document.createElement('md-icon');
+    icon.slot = 'icon';
+    icon.innerText = post.likes.includes(userId) ? 'favorite' : 'favorite_border';
+    btnElement.prepend(icon);
+  };
+
+  // Open Post Details
+  const openPostDetails = (post, focusComment = false) => {
+    const dialog = document.getElementById('post-detail-dialog');
+    const container = document.getElementById('detail-post-container');
+    const commentsList = document.getElementById('comments-list');
+
+    if (!dialog || !container || !commentsList) return;
+
+    // 1. Render Post Content (Reuse simplified render logic)
+    const user = window.DB.ctx();
+    const mockUsers = {
+      "20230001": { id: "20230001", nickname: "Alex Chen", avatar: `https://picsum.photos/id/1005/200/200` },
+      "20230002": { id: "20230002", nickname: "Emma Wilson", avatar: `https://picsum.photos/id/1000/200/200` },
+      "20230003": { id: "20230003", nickname: "Ryan Lee", avatar: `https://picsum.photos/id/1012/200/200` },
+      "20230004": { id: "20230004", nickname: "Sophia Wang", avatar: `https://picsum.photos/id/1027/200/200` },
+      "20230005": { id: "20230005", nickname: "David Kim", avatar: `https://picsum.photos/id/1025/200/200` },
+    };
+    // Try to get author info from DB or mock
+    let author = window.DB.getUserById(post.authorId);
+    if (!author) {
+      author = mockUsers[post.authorId] || { id: post.authorId, nickname: post.authorId, avatar: null };
+    }
+
+    const avatarHtml = (author.avatar)
+      ? `<img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname)}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">`
+      : `<div class="brand-mark" style="width: 40px; height: 40px; border-radius: 50%; font-size: 16px; display:flex; align-items:center; justify-content:center;">${String(author.id).substring(0, 2)}</div>`;
+
+    const imagesMarkup = (post.images || []).map(img => `<img src="${img}" style="border-radius: 12px; margin-top: 12px; width: 100%; object-fit: cover;">`).join("");
+
+    container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+              ${avatarHtml}
+              <div>
+                  <div class="md-typescale-title-medium">${escapeHtml(author.nickname || author.id)}</div>
+                  <div class="md-typescale-body-small" style="opacity:0.7;">${escapeHtml(formatTime(post.timestamp))}</div>
+              </div>
+          </div>
+          <div class="md-typescale-body-large" style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(post.content)}</div>
+          ${imagesMarkup}
+          <div style="margin-top:16px; display:flex; gap:8px;">
+             ${post.tags.map(t => `<span class="tag-pill" style="background:var(--md-sys-color-surface-variant); padding:4px 12px;">${escapeHtml(t)}</span>`).join('')}
+          </div>
+          <div style="margin-top:16px; border-top:1px solid var(--md-sys-color-outline-variant); padding-top:12px; display:flex; gap:24px;">
+              <span style="display:flex; align-items:center; gap:6px;"><md-icon style="font-size:20px;">favorite</md-icon> ${post.likes.length}</span>
+              <span style="display:flex; align-items:center; gap:6px;"><md-icon style="font-size:20px;">chat_bubble</md-icon> ${post.comments.length}</span>
+          </div>
+      `;
+
+    // 2. Render Comments
+    const renderComments = () => {
+      commentsList.innerHTML = '';
+      post.comments.forEach(comment => {
+        // Try resolve comment author
+        let cAuthor = window.DB.getUserById(comment.authorId);
+        if (!cAuthor) cAuthor = mockUsers[comment.authorId] || { nickname: comment.authorId, avatar: null };
+
+        const cAvatar = cAuthor.avatar
+          ? `<img src="${cAuthor.avatar}" style="width:32px; height:32px; border-radius:50%;">`
+          : `<div class="brand-mark" style="width:32px; height:32px; border-radius:50%; font-size:12px;">${String(comment.authorId).substring(0, 2)}</div>`;
+
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.gap = '12px';
+        div.innerHTML = `
+                  ${cAvatar}
+                  <div style="background:var(--md-sys-color-surface-container-high); padding:8px 12px; border-radius:12px; flex:1;">
+                      <div style="font-weight:600; font-size:0.9rem; margin-bottom:4px;">
+                        ${escapeHtml(cAuthor.nickname || comment.authorId)}
+                        <span style="font-weight:400; font-size:0.75rem; opacity:0.6; margin-left:8px;">${formatTime(comment.timestamp)}</span>
+                      </div>
+                      <div style="font-size:0.95rem;">${escapeHtml(comment.content)}</div>
+                  </div>
+              `;
+        commentsList.appendChild(div);
+      });
+    };
+    renderComments();
+
+    // 3. Setup Comment Input
+    const input = document.getElementById('new-comment-input');
+    const sendBtn = document.getElementById('send-comment-btn');
+
+    // Remove old listener to avoid duplicates
+    const newSendBtn = sendBtn.cloneNode(true);
+    sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+
+    newSendBtn.addEventListener('click', () => {
+      const content = input.value.trim();
+      if (!content) return;
+
+      const currentUser = window.DB.ctx();
+      if (!currentUser) {
+        if (confirm("Please login to comment.")) window.location.href = "auth.html";
+        return;
+      }
+
+      // Add comment
+      post.comments.push({
+        id: `c_${Date.now()}`,
+        authorId: currentUser.id,
+        content: content,
+        timestamp: new Date().toISOString()
+      });
+
+      input.value = '';
+      renderComments();
+
+      // Update main feed button count
+      const card = document.querySelector(`.post-card[data-id="${post.id}"]`);
+      if (card) {
+        const cBtn = card.querySelector('.btn-comment');
+        if (cBtn) {
+          cBtn.innerText = ` ${post.comments.length}`;
+          const icon = document.createElement('md-icon');
+          icon.slot = 'icon';
+          icon.innerText = 'chat_bubble_outline';
+          cBtn.prepend(icon);
+        }
+      }
+    });
+
+    dialog.show();
+    if (focusComment) {
+      setTimeout(() => input.focus(), 100);
+    }
   };
 
   const renderFeed = () => {
     const panel = getActivePanel();
-    
+
     panel.list.innerHTML = "";
 
     // If we're on the Users tab, render user cards instead of posts
     if (state.filter === "users") {
       const mockUsers = generateMockUsers();
       let filteredUsers = [...mockUsers];
-      
+
       // Apply search filter if there's a query
       if (state.searchQuery) {
         const query = state.searchQuery.toLowerCase();
-        filteredUsers = filteredUsers.filter(user => 
-          user.nickname.toLowerCase().includes(query) || 
+        filteredUsers = filteredUsers.filter(user =>
+          user.nickname.toLowerCase().includes(query) ||
           user.id.toLowerCase().includes(query)
         );
       }
-      
+
       if (!filteredUsers.length) {
         panel.empty.hidden = false;
         return;
       }
-      
+
       panel.empty.hidden = true;
-      
+
       const fragment = document.createDocumentFragment();
       filteredUsers.forEach((user, index) => {
         const userCard = renderUserCard(user, index);
         fragment.appendChild(userCard);
       });
-      
+
       panel.list.appendChild(fragment);
       return;
     }
-    
+
     // Original post rendering logic for other filters
     const posts = getFeedData(state.filter).map(normalizePost);
 
@@ -379,7 +570,7 @@
         .join("");
 
       const imagesMarkup = (post.images || []).map(img => `<img src="${img}" style="border-radius: 12px; margin-top: 8px; max-height: 300px; object-fit: cover;" onerror="this.style.display='none';">`).join("");
-      
+
       const user = window.DB ? window.DB.ctx() : null;
       const isLiked = user && post.likes.includes(user.id);
       const likeIcon = isLiked ? 'favorite' : 'favorite_border';
@@ -396,11 +587,11 @@
       const author = mockUsers[post.authorId] || { id: post.authorId, nickname: post.authorId, avatar: null };
       const avatarHtml = (author.avatar)
         ? `<div class="author-avatar" style="cursor: pointer;" data-author-id="${post.authorId}"><img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;"></div>`
-        : `<div class="author-avatar brand-mark" style="cursor: pointer; width: 32px; height: 32px; font-size: 14px;" data-author-id="${post.authorId}">${String(author.id).substring(0,2)}</div>`;
+        : `<div class="author-avatar brand-mark" style="cursor: pointer; width: 32px; height: 32px; font-size: 14px;" data-author-id="${post.authorId}">${String(author.id).substring(0, 2)}</div>`;
 
       // Check if user is logged in and not the author
       const isCurrentUser = user && String(user.id) === String(post.authorId);
-      
+
       // Generate more options menu based on rules
       let moreMenuHtml = '';
       if (user) {
@@ -413,7 +604,7 @@
           // Post author is not current user: Follow option
           menuItems.push(`<div class="post-more-item btn-follow" data-author-id="${post.authorId}">Follow</div>`);
         }
-        
+
         if (menuItems.length > 0) {
           moreMenuHtml = `
             <div class="post-more-container">
@@ -433,17 +624,17 @@
           ${avatarHtml}
           <div style="flex:1; margin-left: 12px;">
             <div class="post-author md-typescale-title-small">${escapeHtml(
-            author ? (author.nickname || author.id) : post.authorId
-          )}</div>
+        author ? (author.nickname || author.id) : post.authorId
+      )}</div>
             <div class="post-meta md-typescale-body-small">${escapeHtml(
-            formatTime(post.timestamp)
-          )}</div>
+        formatTime(post.timestamp)
+      )}</div>
           </div>
           ${moreMenuHtml}
         </div>
         <div class="post-content md-typescale-body-medium" style="margin-top: 8px;">${escapeHtml(
-          post.content
-        )}
+        post.content
+      )}
         ${imagesMarkup}
         </div>
         <div class="post-tags" style="margin-top: 8px;">${tagsMarkup}</div>
@@ -464,12 +655,96 @@
 
     panel.list.appendChild(fragment);
 
+    // Add interactive event listeners
+    panel.list.querySelectorAll('.post-card').forEach(card => {
+      const postId = parseInt(card.dataset.id); // Mock IDs are numbers
+      const post = mockPosts.find(p => p.id === postId);
+      if (!post) return;
+
+      // 1. Card Click (Open Details) - Exclude buttons/interactive elements
+      card.addEventListener('click', (e) => {
+        const target = e.target;
+        // Avoid triggering when clicking buttons, icons, or links
+        if (target.closest('button') || target.closest('md-icon-button') || target.closest('md-outlined-button') || target.closest('.author-avatar') || target.closest('.no-click')) {
+          return;
+        }
+        openPostDetails(post);
+      });
+
+      // 2. Like Button
+      const likeBtn = card.querySelector('.btn-like');
+      if (likeBtn) {
+        likeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleLike(post, likeBtn);
+        });
+      }
+
+      // 3. Comment Button
+      const commentBtn = card.querySelector('.btn-comment');
+      if (commentBtn) {
+        commentBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openPostDetails(post, true); // true = focus comment input
+        });
+      }
+
+      // 4. Follow Button (if exists)
+      const followBtn = card.querySelector('.btn-follow');
+      if (followBtn) {
+        followBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleFollow(post.authorId, followBtn);
+        });
+      }
+
+      // 5. More Options (Edit/Delete)
+      const editBtn = card.querySelector('.post-edit-btn');
+      if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // Implement edit logic if needed, or mostly for mock we might skip or reuse PostEditor
+          alert('Edit functionality not fully implemented for mock posts.');
+        });
+      }
+
+      const deleteBtn = card.querySelector('.post-delete-btn');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (confirm('Delete this post?')) {
+            mockPosts = mockPosts.filter(p => p.id !== postId);
+            renderFeed();
+          }
+        });
+      }
+
+      // 6. More Menu Toggle
+      const moreBtn = card.querySelector('.post-more-btn');
+      if (moreBtn) {
+        moreBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const menu = card.querySelector('.post-more-menu');
+          const isVisible = menu.style.display === 'block';
+          // Hide all other open menus
+          document.querySelectorAll('.post-more-menu').forEach(m => m.style.display = 'none');
+          menu.style.display = isVisible ? 'none' : 'block';
+        });
+      }
+    });
+
     // Add event listeners for author avatars
     panel.list.querySelectorAll('.author-avatar').forEach(avatar => {
-      avatar.addEventListener('click', () => {
+      avatar.addEventListener('click', (e) => {
+        e.stopPropagation();
         const authorId = avatar.dataset.authorId;
         window.location.href = `profile.html?id=${authorId}`;
       });
+    });
+
+    // Close menus when clicking outside
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.post-more-menu').forEach(m => m.style.display = 'none');
     });
   };
 
@@ -494,18 +769,18 @@
   const renderTrends = () => {
     const trendsList = document.getElementById('trends-list');
     if (!trendsList) return;
-    
+
     let filteredTrends = state.trends;
     if (state.searchQuery) {
       const query = state.searchQuery.toLowerCase();
-      filteredTrends = state.trends.filter(trend => 
-        trend.tag.toLowerCase().includes(query) || 
+      filteredTrends = state.trends.filter(trend =>
+        trend.tag.toLowerCase().includes(query) ||
         trend.description.toLowerCase().includes(query)
       );
     }
-    
+
     trendsList.innerHTML = '';
-    
+
     filteredTrends.forEach(trend => {
       const trendCard = document.createElement('div');
       trendCard.className = 'trend-card';
@@ -514,18 +789,18 @@
         <div class="md-typescale-body-small">${escapeHtml(trend.description)}</div>
         <div class="trend-posts-count">${trend.posts} posts</div>
       `;
-      
+
       trendCard.addEventListener('click', () => {
         state.selectedTrend = state.selectedTrend && state.selectedTrend.id === trend.id ? null : trend;
         renderTrends();
         renderFeed();
       });
-      
+
       if (state.selectedTrend && state.selectedTrend.id === trend.id) {
         trendCard.style.backgroundColor = 'var(--md-sys-color-primary-container)';
         trendCard.style.color = 'var(--md-sys-color-on-primary-container)';
       }
-      
+
       trendsList.appendChild(trendCard);
     });
   };
@@ -581,14 +856,14 @@
   const renderFollowingList = () => {
     const followingListContainer = document.getElementById('my-following-list');
     const emptyState = document.getElementById('my-following-empty');
-    
+
     if (!followingListContainer || !emptyState) return;
-    
+
     followingListContainer.innerHTML = '';
-    
+
     // Get current user
     const currentUser = DB.ctx();
-    
+
     // Check if user is logged in and has following list
     if (!currentUser || !currentUser.following || currentUser.following.length === 0) {
       // Show empty state
@@ -596,11 +871,11 @@
       followingListContainer.hidden = true;
       return;
     }
-    
+
     // Hide empty state
     emptyState.hidden = true;
     followingListContainer.hidden = false;
-    
+
     // Get detailed information for each followed user
     currentUser.following.forEach(followingId => {
       const user = DB.getUserById(followingId);
@@ -609,37 +884,37 @@
         listItem.className = 'helper-list-item';
         listItem.textContent = user.nickname || user.id;
         listItem.dataset.following = followingId;
-        
+
         // Add click event
         listItem.addEventListener('click', () => {
           console.log(`Following clicked: ${user.nickname || user.id} (${followingId})`);
           // Navigate to user profile
           window.location.href = `profile.html?id=${followingId}`;
         });
-        
+
         followingListContainer.appendChild(listItem);
       }
     });
   };
-  
+
   // Generate combined title based on selected navigation and filter
   const generateCombinedTitle = () => {
     // Get the display name for the navigation
-    const navigationName = state.selectedNavigation === 'trending' ? 'Trending' : 
-                          state.selectedNavigation === 'topics' ? 'Topics' :
-                          state.selectedNavigation === 'clubs' ? 'Clubs' :
-                          state.selectedNavigation === 'people' ? 'Users' :
-                          state.selectedNavigation === 'events' ? 'Events' : 'Trending';
-    
+    const navigationName = state.selectedNavigation === 'trending' ? 'Trending' :
+      state.selectedNavigation === 'topics' ? 'Topics' :
+        state.selectedNavigation === 'clubs' ? 'Clubs' :
+          state.selectedNavigation === 'people' ? 'Users' :
+            state.selectedNavigation === 'events' ? 'Events' : 'Trending';
+
     // If there's a selected filter, add it to the title
     if (state.selectedFilter) {
       return `${navigationName} (${state.selectedFilter})`;
     }
-    
+
     // Otherwise just return the navigation name
     return navigationName;
   };
-  
+
   // Update the feed title based on current state
   const updateFeedTitle = () => {
     const feedTitle = document.querySelector('.panel-section .section-title');
@@ -647,90 +922,90 @@
       feedTitle.textContent = generateCombinedTitle();
     }
   };
-  
+
   // Initialize helper panel event listeners
   const initHelperPanel = () => {
     // Explore Navigation items
     document.querySelectorAll('.helper-list-item[data-navigation]').forEach(item => {
       item.addEventListener('click', () => {
         const navigation = item.dataset.navigation;
-        
+
         // Remove active class from all navigation items
         document.querySelectorAll('.helper-list-item[data-navigation]').forEach(navItem => {
           navItem.classList.remove('active');
         });
-        
+
         // Add active class to the clicked item
         item.classList.add('active');
-        
+
         // Update state based on navigation
         if (navigation === 'people') {
           state.filter = 'users';
         } else {
           state.filter = 'trending';
         }
-        
+
         // Update selected navigation in state
         state.selectedNavigation = navigation;
-        
+
         // Reset any selected trend
         state.selectedTrend = null;
-        
+
         // Simulate content filtering with animation
         const feedPanel = document.querySelector('.feed-panel');
-        
+
         // Add fade out effect
         feedPanel.style.opacity = '0.7';
         feedPanel.style.transition = 'opacity 0.3s ease';
-        
+
         // Simulate loading with a small delay
         setTimeout(() => {
           // Add fade in effect
           feedPanel.style.opacity = '1';
-          
+
           // Update the feed title based on current state
           updateFeedTitle();
-          
+
           // Generate new mock posts for different navigation
           mockPosts = generateMockPosts();
-          
+
           // Render the feed with updated data
           renderFeed();
         }, 300);
       });
     });
-    
+
     // Quick Filters
     document.querySelectorAll('.quick-filter').forEach(item => {
       item.addEventListener('click', () => {
         const filter = item.dataset.filter;
-        
+
         // Remove active class from all quick filters
         document.querySelectorAll('.quick-filter').forEach(filterItem => {
           filterItem.classList.remove('active');
         });
-        
+
         // Add active class to the clicked filter
         item.classList.add('active');
-        
+
         // Update selected filter in state
         state.selectedFilter = filter;
-        
+
         // Simulate content filtering with animation
         const feedPanel = document.querySelector('.feed-panel');
-        
+
         // Add scale effect
         feedPanel.style.transform = 'scale(0.98)';
         feedPanel.style.transition = 'transform 0.2s ease';
-        
+
         // Simulate loading with a small delay
         setTimeout(() => {
           // Reset scale
           feedPanel.style.transform = 'scale(1)';
-          
+
           // Update the feed title based on current state
           updateFeedTitle();
-          
+
           // Generate new mock posts with different characteristics based on filter
           // For academic filter, make more academic content
           // For popular filter, add more likes/comments
@@ -763,16 +1038,16 @@
             // Default filter
             mockPosts = generateMockPosts();
           }
-          
+
           // Render the feed with updated data
           renderFeed();
         }, 200);
       });
     });
-    
+
     // Render following list on initialization
     renderFollowingList();
-    
+
     // Listen for database updates to refresh the following list
     window.addEventListener('db:update', () => {
       renderFollowingList();

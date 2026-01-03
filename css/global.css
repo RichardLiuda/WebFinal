@@ -57,6 +57,25 @@
   box-sizing: border-box;
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--md-sys-color-outline-variant);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--md-sys-color-outline);
+}
+
 body {
   margin: 0;
   min-height: 100%;
@@ -437,7 +456,8 @@ md-icon[filled] {
 
 /* --- 核心修改：强制弹窗宽度 --- */
 #publish-dialog {
-  min-width: 680px; /* PC端强制最小宽度 */
+  min-width: 680px;
+  /* PC端强制最小宽度 */
   width: 680px;
   max-width: 90vw;
 }
@@ -459,6 +479,7 @@ md-icon[filled] {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -470,6 +491,7 @@ md-icon[filled] {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

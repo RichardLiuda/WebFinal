@@ -20,6 +20,7 @@
         }
     </script>
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/theme-background.css">
     <script src="../js/ThemeEngine.js"></script>
     
     <style>
@@ -29,7 +30,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, var(--md-sys-color-surface-container-low) 0%, var(--md-sys-color-primary-container) 100%);
+            background: transparent; /* Changed for global theme */
             font-family: 'Roboto', sans-serif;
         }
 
@@ -117,6 +118,20 @@
     </style>
 </head>
 <body>
+
+    <div class="glassmorphism-container">
+        <div class="bg-gradient"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="bg-noise"></div>
+    </div>
+    
+    <div style="position: absolute; top: 16px; right: 16px; z-index: 100;">
+        <md-icon-button id="btn-theme-toggle">
+            <md-icon>brightness_6</md-icon>
+        </md-icon-button>
+    </div>
 
     <div class="auth-container">
         <main class="auth-card">
@@ -234,5 +249,15 @@
 
     <script src="../js/LocalStorage.js"></script>
     <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnTheme = document.getElementById('btn-theme-toggle');
+            if(btnTheme) {
+                btnTheme.addEventListener('click', () => {
+                    if(window.ThemeEngine) window.ThemeEngine.toggle();
+                });
+            }
+        });
+    </script>
 </body>
 </html>
