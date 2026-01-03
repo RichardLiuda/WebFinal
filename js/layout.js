@@ -303,6 +303,8 @@
         }
       } else if (route === "notification") {
         window.location.href = "notifications.html";
+      } else if (route === "explore") {
+        window.location.href = "explore.html";
       }
     });
   });

@@ -795,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
             break;
           case 'explore':
             // 探索页面的跳转逻辑，这里暂时跳转到首页
-            window.location.href = 'index.html';
+            window.location.href = 'explore.html';
             break;
           case 'profile':
             // 当前已经在profile页面，不需要跳转
