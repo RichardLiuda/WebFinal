@@ -1,0 +1,252 @@
+/* 
+   Explore Page Specific Styles 
+   Background styles have been moved to: theme-background.css
+*/
+
+
+/* --- 3. Page Layout Styles (Migrated from explore.html) --- */
+
+#user-avatar-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+#avatar-trigger {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--md-sys-color-outline-variant);
+    margin-left: 8px;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#avatar-trigger:hover {
+    transform: scale(1.1);
+}
+
+#menu-admin {
+    display: none;
+}
+
+.hero {
+    padding: 32px 24px;
+    text-align: center;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 80%;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--md-sys-color-surface-variant);
+    border-radius: 24px;
+    padding: 8px 16px;
+}
+
+.search-box md-icon {
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.trends-section {
+    padding: 16px 24px;
+}
+
+.trends-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.trends-list {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+}
+
+/* Hides scrollbar for chrome/safari/opera */
+.trends-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hides scrollbar for IE, Edge and Firefox */
+.trends-list {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.trend-card {
+    flex: 0 0 auto;
+    padding: 16px;
+    background-color: var(--md-sys-color-surface-container-low);
+    border-radius: 12px;
+    cursor: pointer;
+    min-width: 180px;
+    transition: background-color 0.2s ease;
+}
+
+.trend-card:hover {
+    background-color: var(--md-sys-color-surface-container);
+}
+
+.trend-posts-count {
+    font-size: 0.8rem;
+    color: var(--md-sys-color-on-surface-variant);
+    margin-top: 8px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 16px 0 24px 0;
+    color: var(--md-sys-color-on-surface);
+}
+
+.panel-section {
+    margin-bottom: 48px;
+}
+
+#panel-trending {
+    margin-bottom: 40px;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--app-gap);
+    align-items: start;
+    margin: 0;
+}
+
+.helper-panel {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+}
+
+.helper-panel>.helper-section:first-child .helper-section-title {
+    padding: 16px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    margin-bottom: 0;
+}
+
+.helper-section {
+    margin-bottom: 0;
+    padding: 20px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.helper-section-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0 0 12px 0;
+    color: var(--md-sys-color-on-surface);
+}
+
+.helper-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.helper-list-item {
+    padding: 8px 0;
+    cursor: pointer;
+    color: var(--md-sys-color-on-surface-variant);
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.helper-list-item:hover {
+    color: var(--md-sys-color-primary);
+    background-color: var(--md-sys-color-surface-variant);
+}
+
+.helper-list-item.active {
+    color: var(--md-sys-color-primary);
+    background-color: var(--md-sys-color-primary-container);
+}
+
+.helper-divider {
+    display: none;
+}
+
+.quick-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.quick-filter {
+    padding: 6px 12px;
+    background-color: var(--md-sys-color-surface-variant);
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--md-sys-color-on-surface-variant);
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.quick-filter:hover {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    border-color: var(--md-sys-color-primary);
+}
+
+.quick-filter.active {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border-color: var(--md-sys-color-primary);
+}
+
+.campus-snapshot {
+    padding: 16px;
+    background-color: var(--md-sys-color-surface-variant);
+    border-radius: 12px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.snapshot-text {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.feed-panel {
+    flex: 1;
+    height: auto;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+
+    .helper-panel {
+        width: 100%;
+        position: relative;
+        top: 0;
+    }
+
+    .feed-panel {
+        height: auto;
+    }
+}
