@@ -404,6 +404,7 @@ function initDatabase() {
     let users = DB._get(DB_KEYS.USERS);
     const adminId = '1234567890';
     
+    // Add admin user if not exists
     if (!users.find(u => String(u.id) === adminId)) {
         const adminUser = {
             id: adminId,
@@ -428,9 +429,10 @@ function initDatabase() {
             followers: []
         };
         users.push(adminUser);
-        DB._set(DB_KEYS.USERS, users);
         console.log("Admin account injected: 1234567890 / admin");
     }
+    
+
 }
 
 initDatabase();

@@ -102,6 +102,196 @@
         padding: 64px 16px;
         color: var(--md-sys-color-on-surface-variant);
       }
+
+      /* Messages list styles */
+      .main-content {
+        display: flex;
+        gap: 16px;
+        margin: 16px;
+      }
+      
+      #messages-list-container {
+        width: 300px;
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      #messages-list {
+        flex: 1;
+        overflow-y: auto;
+      }
+      
+      .message-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      
+      .message-item:hover {
+        background-color: var(--md-sys-color-surface-variant);
+      }
+      
+      .message-item.system-item {
+        border-bottom: 2px solid var(--md-sys-color-outline-variant);
+      }
+      
+      .message-item.active {
+        background-color: var(--md-sys-color-secondary-container);
+      }
+      
+      .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+      }
+      
+      /* Only show background color for system notifications (not for user avatars) */
+      .message-item.system-item .message-avatar {
+        background-color: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+      }
+      
+      .message-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      
+      .message-content {
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .message-name {
+        font-weight: 500;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .message-preview {
+        font-size: 14px;
+        color: var(--md-sys-color-on-surface-variant);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      /* Chat view styles */
+      .feed-panel {
+        flex: 1;
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      #notifications-view {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      #chat-view {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .chat-header {
+        padding: 16px;
+        border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        display: flex;
+        align-items: center;
+      }
+      
+      .chat-user-info {
+        display: flex;
+        align-items: center;
+      }
+      
+      #chat-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+      }
+      
+      #chat-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      
+      #chat-username {
+        font-weight: 500;
+        font-size: 16px;
+      }
+      
+      .chat-messages {
+        flex: 1;
+        padding: 16px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .chat-message {
+        max-width: 70%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        word-wrap: break-word;
+      }
+      
+      .chat-message.own {
+        align-self: flex-end;
+        background-color: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        border-bottom-right-radius: 4px;
+      }
+      
+      .chat-message.other {
+        align-self: flex-start;
+        background-color: var(--md-sys-color-surface-variant);
+        color: var(--md-sys-color-on-surface);
+        border-bottom-left-radius: 4px;
+      }
+      
+      .chat-input {
+        padding: 16px;
+        border-top: 1px solid var(--md-sys-color-outline-variant);
+        display: flex;
+        align-items: center;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .main-content {
+          flex-direction: column;
+        }
+        
+        #messages-list-container {
+          width: 100%;
+          height: auto;
+        }
+        
+        .feed-panel {
+          height: auto;
+        }
+      }
     </style>
   </head>
   <body>
@@ -151,72 +341,115 @@
 
       <div class="main-content">
         
-        <section class="tags-filter-card surface-card"></section>
-        <section class="feed-panel surface-card">
-          <md-tabs id="notifications-tabs" class="feed-tabs" aria-label="Notifications filter">
-            <md-primary-tab
-              id="tab-like-notifications"
-              data-type="like"
-              active
-              aria-controls="panel-like-notifications">
-              Likes
-            </md-primary-tab>
-            <md-primary-tab
-              id="tab-comment-notifications"
-              data-type="comment"
-              aria-controls="panel-comment-notifications">
-              Comments
-            </md-primary-tab>
-            <md-primary-tab
-              id="tab-follow-notifications"
-              data-type="follow"
-              aria-controls="panel-follow-notifications">
-              Follows
-            </md-primary-tab>
-          </md-tabs>
-
-          <div class="notification-header" style="margin-top: 16px;">
-            <div class="md-typescale-title-small">Notifications</div>
-            <md-text-button id="mark-all-read-btn">
-              Mark All as Read
-            </md-text-button>
+        <section class="surface-card" id="messages-list-container">
+          <div class="md-typescale-title-small" style="padding: 16px; border-bottom: 1px solid var(--md-sys-color-outline-variant);">Messages</div>
+          <div id="messages-list">
+            <!-- System notifications entry -->
+            <div class="message-item system-item" data-type="system">
+              <div class="message-avatar">
+                <md-icon>notifications</md-icon>
+              </div>
+              <div class="message-content">
+                <div class="message-name">System Notifications</div>
+                <div class="message-preview">Likes, comments, and follows</div>
+              </div>
+            </div>
+            
+            <!-- Mock user entries will be added here by JavaScript -->
           </div>
+        </section>
+        
+        <section class="feed-panel surface-card">
+          <!-- Notification tabs (existing content) -->
+          <div id="notifications-view" style="display: flex;">
+            <md-tabs id="notifications-tabs" class="feed-tabs" aria-label="Notifications filter">
+              <md-primary-tab
+                id="tab-like-notifications"
+                data-type="like"
+                active
+                aria-controls="panel-like-notifications">
+                Likes
+              </md-primary-tab>
+              <md-primary-tab
+                id="tab-comment-notifications"
+                data-type="comment"
+                aria-controls="panel-comment-notifications">
+                Comments
+              </md-primary-tab>
+              <md-primary-tab
+                id="tab-follow-notifications"
+                data-type="follow"
+                aria-controls="panel-follow-notifications">
+                Follows
+              </md-primary-tab>
+            </md-tabs>
 
-          <div class="feed-panels">
-            <div
-              id="panel-like-notifications"
-              role="tabpanel"
-              aria-labelledby="tab-like-notifications">
-              <div id="notifications-empty-like" class="empty-state" hidden>
-                <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">favorite</md-icon>
-                <div class="md-typescale-title-medium">No like notifications</div>
-                <div class="md-typescale-body-large">When someone likes your post, they'll appear here.</div>
-              </div>
-              <div id="notifications-list-like" class="notifications-list"></div>
+            <div class="notification-header" style="margin-top: 16px;">
+              <div class="md-typescale-title-small">Notifications</div>
+              <md-text-button id="mark-all-read-btn">
+                Mark All as Read
+              </md-text-button>
             </div>
-            <div
-              id="panel-comment-notifications"
-              role="tabpanel"
-              aria-labelledby="tab-comment-notifications"
-              hidden>
-              <div id="notifications-empty-comment" class="empty-state" hidden>
-                <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">comment</md-icon>
-                <div class="md-typescale-title-medium">No comment notifications</div>
-                <div class="md-typescale-body-large">When someone comments on your post, they'll appear here.</div>
+
+            <div class="feed-panels">
+              <div
+                id="panel-like-notifications"
+                role="tabpanel"
+                aria-labelledby="tab-like-notifications">
+                <div id="notifications-empty-like" class="empty-state" hidden>
+                  <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">favorite</md-icon>
+                  <div class="md-typescale-title-medium">No like notifications</div>
+                  <div class="md-typescale-body-large">When someone likes your post, they'll appear here.</div>
+                </div>
+                <div id="notifications-list-like" class="notifications-list"></div>
               </div>
-              <div id="notifications-list-comment" class="notifications-list"></div>
+              <div
+                id="panel-comment-notifications"
+                role="tabpanel"
+                aria-labelledby="tab-comment-notifications"
+                hidden>
+                <div id="notifications-empty-comment" class="empty-state" hidden>
+                  <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">comment</md-icon>
+                  <div class="md-typescale-title-medium">No comment notifications</div>
+                  <div class="md-typescale-body-large">When someone comments on your post, they'll appear here.</div>
+                </div>
+                <div id="notifications-list-comment" class="notifications-list"></div>
+              </div>
+              <div
+                id="panel-follow-notifications"
+                role="tabpanel"
+                aria-labelledby="tab-follow-notifications"
+                hidden>
+                <div id="notifications-empty-follow" class="empty-state" hidden>
+                  <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">person_add</md-icon>
+                  <div class="md-typescale-title-medium">No follow notifications</div>
+                  <div class="md-typescale-body-large">When someone follows you, they'll appear here.</div>
+                </div>
+                <div id="notifications-list-follow" class="notifications-list"></div>
+              </div>
             </div>
-            <div
-              id="panel-follow-notifications"
-              role="tabpanel"
-              aria-labelledby="tab-follow-notifications"
-              hidden>
-              <div id="notifications-empty-follow" class="empty-state" hidden>
-                <md-icon style="font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">person_add</md-icon>
-                <div class="md-typescale-title-medium">No follow notifications</div>
-                <div class="md-typescale-body-large">When someone follows you, they'll appear here.</div>
+          </div>
+          
+          <!-- Chat window (hidden by default) -->
+          <div id="chat-view" style="display: none;">
+            <div class="chat-header">
+              <div class="chat-user-info">
+                <div id="chat-avatar"></div>
+                <div id="chat-username"></div>
               </div>
-              <div id="notifications-list-follow" class="notifications-list"></div>
+            </div>
+            <div id="chat-messages" class="chat-messages">
+              <!-- Mock messages will be added here by JavaScript -->
+            </div>
+            <div class="chat-input">
+              <md-filled-text-field
+                id="chat-message-input"
+                placeholder="Type a message..."
+                style="flex: 1; margin-right: 8px;">
+              </md-filled-text-field>
+              <md-filled-button id="send-message-btn">
+                Send
+              </md-filled-button>
             </div>
           </div>
         </section>
@@ -247,9 +480,30 @@
       </button>
     </nav>
 
+    <!-- Post Detail Dialog -->
+    <md-dialog id="post-detail-dialog" style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
+      <div slot="headline">Post Details</div>
+      <div slot="content" style="padding-top: 10px;">
+        <div id="detail-post-container"></div>
+        <md-divider style="margin: 16px 0;"></md-divider>
+        <div class="comments-section">
+          <div class="md-typescale-title-small">Comments</div>
+          <div id="comments-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;"></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <md-outlined-text-field id="new-comment-input" label="Write a comment..." style="flex: 1;"></md-outlined-text-field>
+            <md-icon-button id="send-comment-btn"><md-icon>send</md-icon></md-icon-button>
+          </div>
+        </div>
+      </div>
+      <div slot="actions">
+        <md-text-button onclick="document.getElementById('post-detail-dialog').close()">Close</md-text-button>
+      </div>
+    </md-dialog>
+
     <!-- Scripts -->
     <script src="../js/LocalStorage.js"></script>
     <script src="../js/layout.js"></script>
     <script src="../js/notifications.js"></script>
+    <script src="../js/post_editor.js"></script>
   </body>
 </html>

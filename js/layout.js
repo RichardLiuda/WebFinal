@@ -116,8 +116,8 @@
 
       const author = window.DB && window.DB.getUserById ? window.DB.getUserById(post.authorId) : null;
       const avatarHtml = (author && author.avatar) 
-        ? `<img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;">` 
-        : `<div class="brand-mark" style="width: 32px; height: 32px; font-size: 14px;">${String(author ? author.id : post.authorId).substring(0,2)}</div>`;
+        ? `<div class="author-avatar" style="cursor: pointer;" data-author-id="${post.authorId}"><img src="${escapeHtml(author.avatar)}" alt="${escapeHtml(author.nickname || author.id)}" style="width:32px; height:32px; border-radius:12px; object-fit:cover;"></div>` 
+        : `<div class="author-avatar brand-mark" style="cursor: pointer; width: 32px; height: 32px; font-size: 14px;" data-author-id="${post.authorId}">${String(author ? author.id : post.authorId).substring(0,2)}</div>`;
 
       // Check if user is logged in and not the author
       const isCurrentUser = user && String(user.id) === String(post.authorId);
@@ -178,13 +178,21 @@
             <md-icon slot="icon">chat_bubble_outline</md-icon>
             ${post.comments.length}
           </md-outlined-button>
-          <md-text-button type="button">Share</md-text-button>
+          <md-text-button type="button" style="display: none;">Share</md-text-button>
         </div>
       `;
       fragment.appendChild(card);
     });
 
     panel.list.appendChild(fragment);
+
+    // Add event listeners for author avatars
+    panel.list.querySelectorAll('.author-avatar').forEach(avatar => {
+      avatar.addEventListener('click', () => {
+        const authorId = avatar.dataset.authorId;
+        window.location.href = `profile.html?id=${authorId}`;
+      });
+    });
 
     // Add event listeners for more options buttons
     panel.list.querySelectorAll('.post-more-btn').forEach(button => {
