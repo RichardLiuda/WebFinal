@@ -33,11 +33,17 @@
     <div class="section" id="theme-section">
         <h2>1. ThemeEngine Test</h2>
         <p>Current Mode: <strong id="current-theme-mode">unknown</strong></p>
+        <p>Current Color: <strong id="current-theme-color">default</strong></p>
         <div style="margin-bottom: 10px;">
             <button onclick="testTheme('light')">Set Light</button>
             <button onclick="testTheme('dark')">Set Dark</button>
             <button onclick="testTheme('system')">Set System</button>
             <button onclick="window.ThemeEngine.toggle()">Toggle</button>
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>Pick Theme Color:</label>
+            <input type="color" id="color-picker" onchange="testColor(this.value)">
+            <button onclick="testColor(null)">Reset Color</button>
         </div>
         <div class="theme-preview">
             <div class="theme-box primary">Primary Color</div>
@@ -45,7 +51,7 @@
         </div>
     </div>
 
-    <!-- 2. LocalStorage Logic Test -->
+    2. LocalStorage Logic Test
     <div class="section">
         <h2>2. LocalStorage Logic Test</h2>
         <button onclick="runLogicTests()">Run Logic Tests</button>
@@ -76,10 +82,30 @@
             window.ThemeEngine.setTheme(mode);
             updateThemeStatus();
         }
+
+        function testColor(color) {
+            if (color) {
+                window.ThemeEngine.setThemeColor(color);
+            } else {
+                window.ThemeEngine.resetThemeColor();
+                // Also clear from storage to simulate full reset if needed, 
+                // but resetThemeColor just removes CSS var.
+                // To properly reset persistence we might need an API or manual clear:
+                localStorage.removeItem(DB_KEYS.THEME_COLOR);
+                const user = DB.ctx();
+                if(user) {
+                     DB.updateUser(user.id, { settings: { ...user.settings, themeColor: null } });
+                }
+            }
+            updateThemeStatus();
+        }
         
         function updateThemeStatus() {
-            const mode = localStorage.getItem('m3_theme_mode') || 'system';
+            const mode = localStorage.getItem(DB_KEYS.THEME_MODE) || 'system';
+            const color = localStorage.getItem(DB_KEYS.THEME_COLOR) || 'default';
             document.getElementById('current-theme-mode').textContent = mode;
+            document.getElementById('current-theme-color').textContent = color;
+            document.getElementById('color-picker').value = color !== 'default' ? color : '#000000';
         }
         
         // Hook for ThemeEngine updates
@@ -88,6 +114,13 @@
             originalSetTheme(mode, save);
             updateThemeStatus();
         };
+
+        const originalSetColor = window.ThemeEngine.setThemeColor;
+        window.ThemeEngine.setThemeColor = function(color, save) {
+            originalSetColor(color, save);
+            updateThemeStatus();
+        };
+
         updateThemeStatus();
 
         // --- 2. Logic Tests (LocalStorage) ---
