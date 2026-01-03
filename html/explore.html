@@ -32,7 +32,6 @@
     </script>
     <link rel="stylesheet" href="../css/global.css" />
     <style>
-      /* Glassmorphism 3D background */
       .glassmorphism-container {
         position: fixed;
         top: 0;
@@ -69,7 +68,6 @@
         box-shadow: var(--app-shadow-2);
       }
 
-      /* Mock social media post content - matching real post styles */
       .card-content {
         height: 100%;
         display: flex;
@@ -144,7 +142,6 @@
         color: var(--md-sys-color-on-surface-variant);
       }
 
-      /* Card animations */
       @keyframes float1 {
         0% { transform: translateZ(0px) rotateY(0deg); }
         50% { transform: translateZ(50px) rotateY(5deg); }
@@ -163,7 +160,6 @@
         100% { transform: translateZ(10px) rotateY(-2deg); }
       }
 
-      /* Assign different animations and positions to cards */
       .glass-card:nth-child(1) {
         top: 10%;
         left: 10%;
@@ -200,7 +196,6 @@
         animation: float3 11s ease-in-out infinite 2.5s;
       }
 
-      /* Member B: Avatar styling and layout consistency */
       #user-avatar-container {
         display: flex;
         align-items: center;
@@ -218,12 +213,10 @@
       #avatar-trigger:hover {
         transform: scale(1.1);
       }
-      /* 默认隐藏管理员选项 */
       #menu-admin {
         display: none;
       }
       
-      /* Explore page specific styles */
       .hero {
         padding: 32px 24px;
         text-align: center;
@@ -284,7 +277,6 @@
         margin-top: 8px;
       }
       
-      /* Section title styling */
       .section-title {
         font-size: 1.5rem;
         font-weight: 500;
@@ -292,17 +284,14 @@
         color: var(--md-sys-color-on-surface);
       }
       
-      /* Panel section styling */
       .panel-section {
         margin-bottom: 48px;
       }
       
-      /* Add spacing between sections */
       #panel-trending {
         margin-bottom: 40px;
       }
       
-      /* Helper panel styles */
       .main-content {
         display: grid;
         grid-template-columns: 300px 1fr;
@@ -420,7 +409,6 @@
         overflow: hidden;
       }
       
-      /* Responsive adjustments */
       @media (max-width: 1024px) {
         .main-content {
           grid-template-columns: 1fr;
@@ -439,9 +427,7 @@
     </style>
   </head>
   <body>
-    <!-- Glassmorphism 3D background container -->
     <div class="glassmorphism-container">
-      <!-- Glass card 1 -->
       <div class="glass-card">
         <div class="card-content">
           <div class="card-header">
@@ -465,7 +451,6 @@
         </div>
       </div>
 
-      <!-- Glass card 2 -->
       <div class="glass-card">
         <div class="card-content">
           <div class="card-header">
@@ -489,7 +474,6 @@
         </div>
       </div>
 
-      <!-- Glass card 3 -->
       <div class="glass-card">
         <div class="card-content">
           <div class="card-header">
@@ -513,7 +497,6 @@
         </div>
       </div>
 
-      <!-- Glass card 4 -->
       <div class="glass-card">
         <div class="card-content">
           <div class="card-header">
@@ -537,7 +520,6 @@
         </div>
       </div>
 
-      <!-- Glass card 5 -->
       <div class="glass-card">
         <div class="card-content">
           <div class="card-header">
@@ -561,7 +543,6 @@
         </div>
       </div>
 
-      <!-- Glass card 6 -->
       <div class="glass-card">
         <div class="card-content">
           <div class="card-header">
@@ -597,12 +578,9 @@
         </div>
       </div>
       <div class="app-actions">
-        <!-- Member B: Avatar Slot & Anchor for Menu -->
         <div id="user-avatar-container"></div>
 
-        <!-- Member B: Floating Account Menu -->
         <md-menu id="account-menu" anchor="user-avatar-container">
-          <!-- 管理员控制台：仅限 admin 角色可见 -->
           <md-menu-item id="menu-admin">
             <div slot="headline">Admin Console</div>
             <md-icon slot="start">admin_panel_settings</md-icon>
@@ -640,20 +618,17 @@
         </div>
       </section>
 
-      <!-- Trends Filter Section -->
       <section class="trends-section surface-card">
         <div class="trends-header">
           <div class="md-typescale-title-small">Trending Now</div>
           <md-text-button style="display: none;">See all</md-text-button>
         </div>
         <div id="trends-list" class="trends-list">
-          <!-- Trends will be dynamically added here -->
         </div>
       </section>
 
       <div class="main-content">
         <section class="helper-panel surface-card">
-          <!-- Explore Navigation -->
           <div class="helper-section">
             <h3 class="helper-section-title">Explore Navigation</h3>
             <ul class="helper-list">
@@ -665,7 +640,6 @@
             </ul>
           </div>
           
-          <!-- My Following -->
         <div class="helper-section">
           <h3 class="helper-section-title">My Following</h3>
           <div id="my-following-container">
@@ -676,7 +650,6 @@
           </div>
         </div>
           
-          <!-- Quick Filters -->
           <div class="helper-section">
             <h3 class="helper-section-title">Quick Filters</h3>
             <div class="quick-filters">
@@ -689,7 +662,6 @@
         </section>
         <section class="feed-panel surface-card">
           <div class="feed-panels">
-            <!-- Trending posts section -->
             <div class="panel-section">
               <h2 class="section-title">Trending</h2>
               <div id="panel-trending" role="tabpanel">
@@ -700,7 +672,6 @@
               </div>
             </div>
             
-            <!-- Users section -->
             <div class="panel-section" style="display: none;">
               <h2 class="section-title">Users</h2>
               <div id="panel-users" role="tabpanel">
@@ -742,7 +713,6 @@
       </button>
     </nav>
 
-    <!-- Dialogs from Content Module (Member C) -->
     <md-dialog id="publish-dialog">
       <div slot="headline">Create Post</div>
       <form slot="content" id="publish-form" method="dialog">
@@ -752,11 +722,23 @@
           label="What's on your mind?"
           rows="3"
           style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
-        <md-outlined-text-field
-          id="post-image-url"
-          label="Image URL (optional)"
-          type="url"
-          style="width: 100%; margin-bottom: 16px"></md-outlined-text-field>
+
+        <div class="image-upload-section" style="margin-bottom: 16px;">
+          <input type="file" id="post-file-input" accept="image/*" style="display: none;">
+          <md-filled-tonal-button type="button" onclick="document.getElementById('post-file-input').click()">
+            <md-icon slot="icon">add_photo_alternate</md-icon>
+            Select Image
+          </md-filled-tonal-button>
+          
+          <div id="post-image-preview-container" style="margin-top: 12px; display: none; position: relative;">
+            <img id="post-preview-img" src="" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; border: 1px solid var(--md-sys-color-outline-variant);">
+            <md-icon-button id="btn-remove-img" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.5); --md-icon-button-icon-color: white;">
+              <md-icon>close</md-icon>
+            </md-icon-button>
+          </div>
+          <input type="hidden" id="post-image-base64">
+        </div>
+
         <md-outlined-text-field
           id="post-tags-text"
           label="Tags (space separated, e.g. #campus)"
@@ -809,7 +791,6 @@
       </div>
     </md-dialog>
 
-    <!-- Edit Post Dialog -->
     <md-dialog id="edit-post-dialog">
       <div slot="headline">Edit Post</div>
       <form slot="content" id="edit-post-form">
@@ -835,94 +816,111 @@
       </div>
     </md-dialog>
 
-    <!-- Base Scripts -->
     <script src="../js/LocalStorage.js"></script>
     <script src="../js/layout.js"></script>
     <script src="../js/post_editor.js"></script>
     <script src="../js/explore.js"></script>
 
-    <!-- Member B: Account Logic -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const navProfile = document.getElementById("nav-profile");
-        const avatarContainer = document.getElementById(
-          "user-avatar-container"
-        );
+        const avatarContainer = document.getElementById("user-avatar-container");
         const accountMenu = document.getElementById("account-menu");
         const menuAdmin = document.getElementById("menu-admin");
 
-        // 1. Sync UI with Auth State
+        const fileInput = document.getElementById('post-file-input');
+        const base64Input = document.getElementById('post-image-base64');
+        const previewContainer = document.getElementById('post-image-preview-container');
+        const previewImg = document.getElementById('post-preview-img');
+        const removeImgBtn = document.getElementById('btn-remove-img');
+
         function updateUI() {
           const user = window.DB.ctx();
           if (user) {
-            // User is logged in
-            
-            // 判断角色是否为管理员
             if (user.role === "admin") {
-              menuAdmin.style.display = "flex"; // 显示管理选项
+              menuAdmin.style.display = "flex";
             } else {
               menuAdmin.style.display = "none";
             }
-
-            // Display Avatar and attach Menu Trigger
-            avatarContainer.innerHTML = `
-                    <img id="avatar-trigger" src="${user.avatar}" alt="User Profile">
-                  `;
-
-            document
-              .getElementById("avatar-trigger")
-              .addEventListener("click", () => {
+            avatarContainer.innerHTML = `<img id="avatar-trigger" src="${user.avatar}" alt="User Profile">`;
+            document.getElementById("avatar-trigger").addEventListener("click", () => {
                 accountMenu.open = !accountMenu.open;
-              });
+            });
           } else {
-            // Guest mode
-            
-            // 显示占位符头像
             avatarContainer.innerHTML = `
               <div id="avatar-trigger" class="placeholder-avatar">
                 <md-icon style="width: 24px; height: 24px; color: var(--md-sys-color-on-surface-variant);">person</md-icon>
               </div>
             `;
-            
-            // 添加点击跳转到登录页面的事件
             document.getElementById('avatar-trigger').addEventListener('click', () => {
               window.location.href = 'auth.html';
             });
-            
             menuAdmin.style.display = "none";
           }
         }
 
-        // 2. Navigation Actions
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 800;
+                            let width = img.width;
+                            let height = img.height;
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                            base64Input.value = dataUrl;
+                            previewImg.src = dataUrl;
+                            previewContainer.style.display = 'block';
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
 
-        // 3. Floating Menu Actions
+        if (removeImgBtn) {
+            removeImgBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                base64Input.value = '';
+                previewContainer.style.display = 'none';
+            });
+        }
+
         menuAdmin.addEventListener("click", () => {
-          window.location.href = "admin.html"; // 跳转到管理页面
+          window.location.href = "admin.html";
         });
 
-        document
-          .getElementById("menu-profile")
-          .addEventListener("click", () => {
+        document.getElementById("menu-profile").addEventListener("click", () => {
             window.location.href = "profile.html";
-          });
+        });
 
         document.getElementById("menu-logout").addEventListener("click", () => {
           window.DB.logout();
           location.reload();
         });
 
-        // 4. Silent Permission Guard for Bottom Navigation
         navProfile.addEventListener("click", (e) => {
           if (!window.DB.ctx()) {
             e.preventDefault();
-            e.stopPropagation();
             window.location.href = "auth.html";
           } else {
             window.location.href = "profile.html";
           }
         });
 
-        // Initialization & Listener
         updateUI();
         window.DB.on("db:update", updateUI);
       });
