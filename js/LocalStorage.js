@@ -2,7 +2,9 @@ const DB_KEYS = {
     USERS: 'm3_users',
     POSTS: 'm3_posts',
     CURRENT_USER: 'm3_session',
-    NOTIFICATIONS: 'm3_notifications'
+    NOTIFICATIONS: 'm3_notifications',
+    THEME_MODE: 'm3_theme_mode',
+    THEME_COLOR: 'm3_theme_color'
 };
 
 const Utils = {
@@ -425,4 +427,3 @@ initDatabase();
 
 window.DB = DB;
 window.Utils = Utils;
-window.ThemeEngine = ThemeEngine;
