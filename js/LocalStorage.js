@@ -3,8 +3,6 @@ const DB_KEYS = {
     POSTS: 'm3_posts',
     CURRENT_USER: 'm3_session',
     NOTIFICATIONS: 'm3_notifications',
-    THEME_MODE: 'm3_theme_mode',
-    THEME_COLOR: 'm3_theme_color'
 };
 
 const Utils = {
@@ -409,7 +407,6 @@ function initDatabase() {
             },
             settings: {
                 themeColor: '#6750a4',
-                visibility: 'public'
             },
             role: 'admin',
             isBanned: false,
@@ -417,10 +414,9 @@ function initDatabase() {
             followers: []
         };
         users.push(adminUser);
+        DB._set(DB_KEYS.USERS, users);
         console.log("Admin account injected: 1234567890 / admin");
     }
-    
-
 }
 
 initDatabase();
