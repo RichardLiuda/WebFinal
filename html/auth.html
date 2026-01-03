@@ -139,7 +139,6 @@
 
             <!-- Register Form -->
             <form id="register-form" class="form-section">
-                <!-- maxlength removed to hide the counter -->
                 <md-outlined-text-field id="reg-id" label="Student ID (10 Digits)" type="number" required>
                     <md-icon slot="leading-icon">numbers</md-icon>
                 </md-outlined-text-field>
@@ -150,6 +149,14 @@
 
                 <md-outlined-text-field id="reg-pwd" label="Password (min 6 chars)" type="password" required>
                     <md-icon slot="leading-icon">password</md-icon>
+                </md-outlined-text-field>
+
+                <md-outlined-text-field id="reg-avatar" label="Avatar URL (Optional)" placeholder="https://example.com/me.jpg">
+                    <md-icon slot="leading-icon">add_a_photo</md-icon>
+                </md-outlined-text-field>
+
+                <md-outlined-text-field id="reg-tags" label="Interests (Split by comma)" placeholder="Coding, Music, Sports">
+                    <md-icon slot="leading-icon">sell</md-icon>
                 </md-outlined-text-field>
 
                 <md-outlined-text-field id="reg-bio" label="Bio (Optional)" type="textarea" rows="2">

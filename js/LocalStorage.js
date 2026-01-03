@@ -44,12 +44,24 @@ const DB = {
     },
     login: (id, password) => {
         const users = DB._get(DB_KEYS.USERS);
-        const user = users.find(u => String(u.id) === String(id) && String(u.password) === String(password));
-        console.log("Login attempt - ID:", id, "Password:", password, "Found user:", !!user);
-        if (user) {
-            if(user.isBanned) { alert("Your account has been banned."); return false; }
+        const userIndex = users.findIndex(u => String(u.id) === String(id) && String(u.password) === String(password));
+        
+        console.log("Login attempt - ID:", id, "Found user index:", userIndex);
+        
+        if (userIndex !== -1) {
+            const user = users[userIndex];
+            if(user.isBanned) { 
+                alert("Your account has been banned."); 
+                return false; 
+            }
+            
+            // 更新最近活跃时间
+            user.lastActive = new Date().toISOString();
+            users[userIndex] = user;
+            DB._set(DB_KEYS.USERS, users);
+
             localStorage.setItem(DB_KEYS.CURRENT_USER, JSON.stringify(user));
-            console.log("Session saved to:", DB_KEYS.CURRENT_USER, "Value:", localStorage.getItem(DB_KEYS.CURRENT_USER));
+            console.log("Session saved to:", DB_KEYS.CURRENT_USER);
             window.dispatchEvent(new CustomEvent('db:update', { detail: { key: 'session' } }));
             return true;
         }

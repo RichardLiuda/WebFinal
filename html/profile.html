@@ -356,6 +356,9 @@
                 <h1 id="profile-name" class="profile-name"></h1>
                 <p id="profile-bio" class="profile-bio"></p>
                 
+                <div id="profile-tags" style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px;"></div>
+                <div class="md-typescale-body-small" id="last-active" style="color: var(--md-sys-color-primary); margin-top: 4px;"></div>
+                
                 <div class="profile-stats">
                   <div class="stat-item">
                     <span id="posts-count" class="stat-value">0</span>
@@ -368,6 +371,10 @@
                   <div class="stat-item">
                     <span id="followers-count" class="stat-value">0</span>
                     <span class="stat-label">Followers</span>
+                  </div>
+                  <div class="stat-item">
+                    <span id="view-count" class="stat-value">0</span>
+                    <span class="stat-label">Views</span>
                   </div>
                 </div>
               </div>
@@ -404,6 +411,7 @@
           <section class="feed-panel surface-card">
             <md-tabs id="profile-tabs" class="feed-tabs" aria-label="Profile tabs">
               <md-primary-tab id="tab-posts" data-tab="posts" active aria-controls="panel-posts">Posts</md-primary-tab>
+              <md-primary-tab id="tab-gallery" data-tab="gallery" aria-controls="panel-gallery">Gallery</md-primary-tab>
               <md-primary-tab id="tab-following" data-tab="following" aria-controls="panel-following">Following</md-primary-tab>
               <md-primary-tab id="tab-followers" data-tab="followers" aria-controls="panel-followers">Followers</md-primary-tab>
             </md-tabs>
@@ -411,6 +419,11 @@
             <div class="feed-panels">
               <div id="panel-posts" role="tabpanel" aria-labelledby="tab-posts">
                 <div id="posts-container" class="posts-container"></div>
+              </div>
+              <div id="panel-gallery" role="tabpanel" aria-labelledby="tab-gallery" hidden>
+                <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 16px;">
+                    <!-- 图片动态填充 -->
+                </div>
               </div>
               <div id="panel-following" role="tabpanel" aria-labelledby="tab-following" hidden>
                 <div id="following-container" class="feed-list"></div>
@@ -534,6 +547,18 @@
     <md-dialog id="edit-profile-dialog" style="min-width: 300px; max-width: 90vw; max-height: 80vh; width: 700px;">
       <div slot="headline">Edit Profile</div>
       <form slot="content" id="edit-profile-form" method="dialog" style="padding-top: 10px;">
+        <!-- 新增本地头像上传区域 -->
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+            <img id="edit-avatar-preview" src="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 1px solid var(--md-sys-color-outline);">
+            <div style="flex: 1;">
+                <input type="file" id="edit-file-input" accept="image/*" style="display: none;">
+                <md-filled-tonal-button type="button" onclick="document.getElementById('edit-file-input').click()">
+                    Upload New Photo
+                </md-filled-tonal-button>
+            </div>
+        </div>
+        <input type="hidden" id="edit-profile-avatar-base64">
+
         <md-outlined-text-field
           id="edit-profile-nickname"
           label="Nickname"
@@ -544,11 +569,6 @@
           label="Bio"
           rows="3"
           style="width: 100%; margin-bottom: 16px;"></md-outlined-text-field>
-        <md-outlined-text-field
-          id="edit-profile-avatar"
-          label="Avatar URL (optional)"
-          type="url"
-          style="width: 100%;"></md-outlined-text-field>
       </form>
       <div slot="actions">
         <md-text-button form="edit-profile-form" value="cancel">Cancel</md-text-button>
