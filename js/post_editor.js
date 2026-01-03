@@ -1,4 +1,3 @@
-
 const PostEditor = {
   init: () => {
     PostEditor.initPublish();
@@ -9,15 +8,12 @@ const PostEditor = {
     const fab = document.querySelector('.fab');
     const dialog = document.getElementById('publish-dialog');
     const confirmBtn = document.getElementById('publish-confirm-btn');
-    const cancelBtn = dialog.querySelector('md-text-button[value="cancel"]');
+    const cancelBtn = dialog ? dialog.querySelector('md-text-button[value="cancel"]') : null;
 
     if (fab && dialog) {
       fab.addEventListener('click', () => {
-        // Check login
         if (!window.DB || !window.DB.ctx()) {
           alert('Please login first');
-          // For demo, maybe auto-login or redirect?
-          // DB.login('20230001', 'password'); // Auto login for convenience in dev
           return;
         }
         dialog.show();
@@ -33,40 +29,44 @@ const PostEditor = {
     if (confirmBtn) {
       confirmBtn.addEventListener('click', async () => {
         const contentField = document.getElementById('post-content');
-        const imageField = document.getElementById('post-image-url');
         const tagsField = document.getElementById('post-tags-text');
+        const base64Input = document.getElementById('post-image-base64');
+        const urlInput = document.getElementById('post-image-url');
 
-        const content = contentField.value;
-        const imageUrl = imageField.value;
-        const tagsStr = tagsField.value;
+        const content = contentField ? contentField.value : '';
+        const tagsStr = tagsField ? tagsField.value : '';
+        const imageUrl = (base64Input && base64Input.value) ? base64Input.value : (urlInput ? urlInput.value : '');
 
-        if (!content) {
+        if (!content.trim()) {
           alert('Please write something');
           return;
         }
 
         const images = imageUrl ? [imageUrl] : [];
-        const tags = tagsStr ? tagsStr.split(' ').filter(t => t.startsWith('#')) : [];
+        const tags = tagsStr ? tagsStr.split(/\s+/).filter(t => t.trim()).map(t => t.startsWith('#') ? t : '#' + t) : [];
 
         if (window.DB) {
           window.DB.createPost(content, images, 'public', tags);
+          
+          if (contentField) contentField.value = '';
+          if (tagsField) tagsField.value = '';
+          if (base64Input) base64Input.value = '';
+          if (urlInput) urlInput.value = '';
+          
+          const previewContainer = document.getElementById('post-image-preview-container');
+          if (previewContainer) previewContainer.style.display = 'none';
+          
+          dialog.close();
+          location.reload();
         }
-
-        // Reset and close
-        contentField.value = '';
-        imageField.value = '';
-        tagsField.value = '';
-        dialog.close();
       });
     }
   },
 
   initInteractions: () => {
-    // Event delegation for Post Cards
     document.addEventListener('click', (e) => {
       const target = e.target;
       
-      // Like Button
       const likeBtn = target.closest('.btn-like');
       if (likeBtn) {
         e.stopPropagation();
@@ -78,7 +78,6 @@ const PostEditor = {
         return;
       }
 
-      // Comment Button / Open Detail
       const commentBtn = target.closest('.btn-comment');
       const card = target.closest('.post-card');
       
@@ -89,24 +88,21 @@ const PostEditor = {
           return;
       }
 
-      // If clicked on card but not on buttons, open detail
       if (card && !target.closest('button') && !target.closest('md-icon-button') && !target.closest('md-outlined-button')) {
           const postId = Number(card.dataset.id);
           PostEditor.openDetail(postId);
       }
       
-      // Send Comment in Dialog
       const sendCommentBtn = target.closest('#send-comment-btn');
       if (sendCommentBtn) {
           const dialog = document.getElementById('post-detail-dialog');
           const input = document.getElementById('new-comment-input');
           const postId = Number(dialog.dataset.postId);
           
-          if (input.value.trim() && window.DB) {
+          if (input && input.value.trim() && window.DB) {
               if (!window.DB.ctx()) { alert('Please login'); return; }
               window.DB.comment(postId, input.value.trim());
               input.value = '';
-              // Refresh detail view
               PostEditor.renderComments(postId);
           }
       }
@@ -114,7 +110,7 @@ const PostEditor = {
   },
 
   openDetail: (postId) => {
-    const posts = window.DB.getFeed();
+    const posts = window.DB.getPosts();
     const post = posts.find(p => p.id === postId);
     if (!post) return;
 
@@ -123,30 +119,25 @@ const PostEditor = {
 
     dialog.dataset.postId = postId;
 
-    // Render Post Content in Dialog
     const container = document.getElementById('detail-post-container');
-    container.innerHTML = PostEditor.createCardHTML(post, false); // false = not interactive (no buttons needed if we have specific actions)
-    // Actually we might want buttons there too.
-
-    // Add click event listener for author avatar in dialog
-    const authorAvatar = container.querySelector('.author-avatar');
-    if (authorAvatar) {
-      authorAvatar.addEventListener('click', () => {
-        const authorId = authorAvatar.dataset.authorId;
-        window.location.href = `profile.html?id=${authorId}`;
-      });
+    if (container) {
+      container.innerHTML = PostEditor.createCardHTML(post, false);
+      const authorAvatar = container.querySelector('.author-avatar');
+      if (authorAvatar) {
+        authorAvatar.addEventListener('click', () => {
+          const authorId = authorAvatar.dataset.authorId;
+          window.location.href = `profile.html?id=${authorId}`;
+        });
+      }
     }
 
-    // Render Comments
     PostEditor.renderComments(postId);
-
     dialog.show();
   },
 
   renderComments: (postId) => {
     const list = document.getElementById('comments-list');
-    const posts = window.DB.getFeed();
-    const post = posts.find(p => p.id === postId);
+    const post = window.DB.getPostById(postId);
     const escapeHtml = window.Utils ? window.Utils.sanitize : (s) => s;
     
     if (!list || !post) return;
@@ -169,7 +160,6 @@ const PostEditor = {
         `;
     }).join('');
     
-    // Add click event listeners for comment author avatars
     list.querySelectorAll('.author-avatar').forEach(avatar => {
       avatar.addEventListener('click', () => {
         const authorId = avatar.dataset.authorId;
@@ -178,7 +168,6 @@ const PostEditor = {
     });
   },
 
-  // Helper to generate HTML (Matches layout.js structure but adds IDs)
   createCardHTML: (post, interactive = true) => {
     const escapeHtml = window.Utils ? window.Utils.sanitize : (s) => s;
     const formatTime = window.Utils ? window.Utils.timeAgo : (s) => s;
@@ -192,7 +181,6 @@ const PostEditor = {
     const user = window.DB ? window.DB.ctx() : null;
     const isLiked = user && post.likes.includes(user.id);
     const likeIcon = isLiked ? 'favorite' : 'favorite_border';
-    const likeLabel = isLiked ? 'Liked' : 'Like';
 
     const author = window.DB && window.DB.getUserById ? window.DB.getUserById(post.authorId) : null;
     const avatarHtml = (author && author.avatar) 
@@ -228,5 +216,4 @@ const PostEditor = {
   }
 };
 
-// Auto init when loaded
 document.addEventListener('DOMContentLoaded', PostEditor.init);

@@ -435,6 +435,25 @@ md-icon[filled] {
   font-size: 0.75rem;
 }
 
+/* --- 核心修改：强制弹窗宽度 --- */
+#publish-dialog {
+  min-width: 680px; /* PC端强制最小宽度 */
+  width: 680px;
+  max-width: 90vw;
+}
+
+/* 强制让内部表单填满弹窗空间 */
+#publish-dialog form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 强制文本框填满 */
+#publish-dialog md-outlined-text-field {
+  width: 100% !important;
+}
+
 @keyframes riseIn {
   from {
     opacity: 0;
@@ -486,6 +505,13 @@ md-icon[filled] {
 
   .tags-filter-card {
     position: static;
+  }
+
+  /* 移动端恢复宽度 */
+  #publish-dialog {
+    min-width: unset;
+    width: auto;
+    margin: 16px;
   }
 }
 
